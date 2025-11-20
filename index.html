@@ -219,9 +219,14 @@
                 { id: 'REQ-102', clientId: '12345', service: 'Strategy Call (1h)', cost: 10, status: 'Approved', date: '2023-10-28', notes: 'Q4 Planning' },
                 { id: 'REQ-103', clientId: '67890', service: 'Static Ad Design', cost: 4, status: 'Pending', date: '2023-11-01', notes: 'Black Friday Promo' }
             ],
+            invoices: [
+                { id: 'INV-2023-001', clientId: '12345', amount: '$1,100', date: '2023-10-15', status: 'Paid' },
+                { id: 'INV-2023-002', clientId: '67890', amount: '$500', date: '2023-11-01', status: 'Pending' }
+            ],
             logs: [
                 { id: 1, date: '2023-11-01 10:00', user: 'Admin', action: 'System Login', details: 'Logged in from IP 192.168.1.1' },
-                { id: 2, date: '2023-10-28 14:30', user: 'Acme Corp', action: 'Request Approved', details: 'Strategy Call deducted 10 credits' }
+                { id: 2, date: '2023-10-28 14:30', user: 'Acme Corp', action: 'Request Approved', details: 'Strategy Call deducted 10 credits' },
+                { id: 3, date: '2023-10-25 09:15', user: 'Admin', action: 'Credit Adjustment', details: 'Added 50 credits to Acme Corp' }
             ]
         };
 
@@ -232,6 +237,7 @@
         const getClient = (id) => db.clients.find(c => c.id === id);
         const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const generateId = () => 'REQ-' + Math.floor(Math.random() * 10000);
+        const generateInvId = () => 'INV-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 1000);
 
         // --- AUTH LOGIC ---
 
@@ -365,7 +371,7 @@
                                 <div class="text-3xl font-bold ${pendingReq > 0 ? 'text-amber-500' : 'text-slate-800'}">${pendingReq}</div>
                                 <div class="mt-2 text-xs text-slate-400">Requires attention</div>
                             </div>
-                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:border-brand-200 transition cursor-pointer" onclick="router('admin-billing')">
                                 <div class="text-slate-500 text-sm font-medium mb-2">Revenue (Mo)</div>
                                 <div class="text-3xl font-bold text-slate-800">$12.4k</div>
                                 <div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-arrow-up"></i> On track</div>
@@ -374,7 +380,10 @@
 
                         <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 fade-in">
                             <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                                <h3 class="font-semibold text-lg mb-4">Recent Activity</h3>
+                                <div class="flex justify-between items-center mb-4">
+                                    <h3 class="font-semibold text-lg">Recent Activity</h3>
+                                    <button onclick="router('admin-logs')" class="text-sm text-brand-600 hover:underline">View All Logs</button>
+                                </div>
                                 <div class="space-y-4">
                                     ${db.logs.slice(0, 5).map(log => `
                                         <div class="flex items-start gap-3 pb-3 border-b border-slate-50 last:border-0">
@@ -407,40 +416,123 @@
                             <div class="p-4 border-b border-slate-100 flex gap-4">
                                 <div class="relative flex-1">
                                     <i class="fa-solid fa-search absolute left-3 top-3 text-slate-400"></i>
-                                    <input type="text" placeholder="Search clients..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+                                    <input type="text" id="client-search" onkeyup="filterClients()" placeholder="Search clients..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
                                 </div>
-                                <button class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-2"></i>Add Client</button>
+                                <button onclick="openAddClientModal()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg transition"><i class="fa-solid fa-plus mr-2"></i>Add Client</button>
                             </div>
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                                    <tr>
-                                        <th class="px-6 py-4">Client Name</th>
-                                        <th class="px-6 py-4">Status</th>
-                                        <th class="px-6 py-4">Credits</th>
-                                        <th class="px-6 py-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-slate-100 text-sm">
-                                    ${db.clients.map(client => `
-                                        <tr class="hover:bg-slate-50 group transition">
-                                            <td class="px-6 py-4">
-                                                <div class="font-medium text-slate-900">${client.name}</div>
-                                                <div class="text-xs text-slate-500">${client.email}</div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${client.status}</span>
-                                            </td>
-                                            <td class="px-6 py-4 font-mono font-bold text-brand-600">${client.credits} CR</td>
-                                            <td class="px-6 py-4">
-                                                <button onclick="openAddCreditModal('${client.id}')" class="text-brand-600 hover:text-brand-800 font-medium text-xs mr-3 border border-brand-200 px-2 py-1 rounded hover:bg-brand-50">
-                                                    <i class="fa-solid fa-coins mr-1"></i> Add Credits
-                                                </button>
-                                                <button class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                            </td>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                                        <tr>
+                                            <th class="px-6 py-4">Client Name</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Credits</th>
+                                            <th class="px-6 py-4">Actions</th>
                                         </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody id="client-table-body" class="divide-y divide-slate-100 text-sm">
+                                        ${db.clients.map(client => `
+                                            <tr class="hover:bg-slate-50 group transition">
+                                                <td class="px-6 py-4">
+                                                    <div class="font-medium text-slate-900">${client.name}</div>
+                                                    <div class="text-xs text-slate-500">${client.email}</div>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${client.status}</span>
+                                                </td>
+                                                <td class="px-6 py-4 font-mono font-bold text-brand-600">${client.credits} CR</td>
+                                                <td class="px-6 py-4 flex items-center gap-2">
+                                                    <button onclick="openAddCreditModal('${client.id}')" class="text-brand-600 hover:text-brand-800 font-medium text-xs border border-brand-200 px-2 py-1 rounded hover:bg-brand-50" title="Adjust Credits">
+                                                        <i class="fa-solid fa-coins mr-1"></i> Adjust
+                                                    </button>
+                                                    <button onclick="toggleClientStatus('${client.id}')" class="text-slate-500 hover:text-${client.status === 'Active' ? 'red-600' : 'emerald-600'} font-medium text-xs border border-slate-200 px-2 py-1 rounded hover:bg-slate-100" title="${client.status === 'Active' ? 'Suspend' : 'Activate'}">
+                                                        <i class="fa-solid ${client.status === 'Active' ? 'fa-ban' : 'fa-check'}"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                else if (view === 'admin-logs') {
+                    title.innerText = 'Audit Logs';
+                    headerActions.innerHTML = `<button onclick="exportLogs()" class="text-slate-500 hover:text-brand-600"><i class="fa-solid fa-download"></i> Export CSV</button>`;
+                    container.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                            <div class="p-4 border-b border-slate-100">
+                                <input type="text" onkeyup="filterLogs(this.value)" placeholder="Filter logs by user or action..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+                            </div>
+                            <div class="max-h-[600px] overflow-y-auto">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold sticky top-0 bg-slate-50 z-10 shadow-sm">
+                                        <tr>
+                                            <th class="px-6 py-4">Time</th>
+                                            <th class="px-6 py-4">User / Entity</th>
+                                            <th class="px-6 py-4">Action</th>
+                                            <th class="px-6 py-4">Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm" id="logs-table-body">
+                                        ${db.logs.map(log => `
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="px-6 py-3 text-slate-400 whitespace-nowrap">${log.date}</td>
+                                                <td class="px-6 py-3 font-medium text-slate-800">${log.user}</td>
+                                                <td class="px-6 py-3"><span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">${log.action}</span></td>
+                                                <td class="px-6 py-3 text-slate-500">${log.details}</td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                else if (view === 'admin-billing') {
+                    title.innerText = 'Billing & Invoices';
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 gap-6 fade-in">
+                            <div class="flex justify-between items-center">
+                                <div class="text-slate-500">Manage financial records and generate invoices.</div>
+                                <button onclick="generateInvoice()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm"><i class="fa-solid fa-file-invoice mr-2"></i>Generate Invoice</button>
+                            </div>
+                            
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
+                                        <tr>
+                                            <th class="px-6 py-4">Invoice ID</th>
+                                            <th class="px-6 py-4">Client</th>
+                                            <th class="px-6 py-4">Date</th>
+                                            <th class="px-6 py-4">Amount</th>
+                                            <th class="px-6 py-4">Status</th>
+                                            <th class="px-6 py-4">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        ${db.invoices.map(inv => {
+                                            const c = getClient(inv.clientId);
+                                            return `
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="px-6 py-4 font-mono text-slate-500">${inv.id}</td>
+                                                <td class="px-6 py-4 font-medium text-slate-800">${c ? c.name : 'Unknown'}</td>
+                                                <td class="px-6 py-4 text-slate-500">${inv.date}</td>
+                                                <td class="px-6 py-4 font-bold text-slate-800">${inv.amount}</td>
+                                                <td class="px-6 py-4">
+                                                    <span class="px-2 py-1 rounded text-xs font-bold ${inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${inv.status}</span>
+                                                </td>
+                                                <td class="px-6 py-4">
+                                                    <button onclick="showToast('Downloading PDF...', 'info')" class="text-brand-600 hover:underline text-xs"><i class="fa-solid fa-download"></i> PDF</button>
+                                                </td>
+                                            </tr>
+                                        `}).join('')}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     `;
                 }
@@ -544,6 +636,50 @@
                                     </table>` : 
                                     `<div class="p-8 text-center text-slate-400">You haven't made any requests yet.</div>`
                                 }
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                else if (view === 'client-history') {
+                    title.innerText = 'History & Usage';
+                    headerActions.innerHTML = `<button class="text-slate-400 hover:text-brand-600 text-sm"><i class="fa-solid fa-print"></i> Print Statement</button>`;
+                    
+                    const clientLogs = db.logs.filter(l => l.user === currentUser.name || l.details.includes(currentUser.name));
+                    const clientReqs = db.requests.filter(r => r.clientId === currentUser.id);
+                    
+                    container.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 fade-in">
+                            <div class="p-6 border-b border-slate-100">
+                                <h3 class="font-bold text-lg text-slate-800">Transaction Ledger</h3>
+                                <p class="text-slate-500 text-sm">A complete history of credits purchased and consumed.</p>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left">
+                                    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+                                        <tr>
+                                            <th class="px-6 py-4">Date</th>
+                                            <th class="px-6 py-4">Description</th>
+                                            <th class="px-6 py-4 text-right">Change</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="divide-y divide-slate-100 text-sm">
+                                        ${clientLogs.length > 0 ? clientLogs.map(log => {
+                                            const isPositive = log.details.includes('Bought') || log.details.includes('Added');
+                                            const changeText = log.details.match(/(\d+) Cr/);
+                                            const amount = changeText ? changeText[1] : '0';
+                                            return `
+                                            <tr>
+                                                <td class="px-6 py-4 text-slate-500">${log.date}</td>
+                                                <td class="px-6 py-4 font-medium text-slate-800">${log.details}</td>
+                                                <td class="px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-emerald-600' : 'text-red-500'}">
+                                                    ${isPositive ? '+' : '-'}${amount}
+                                                </td>
+                                            </tr>
+                                            `;
+                                        }).join('') : `<tr><td colspan="3" class="p-6 text-center text-slate-400">No history available yet.</td></tr>`}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     `;
@@ -763,6 +899,104 @@
             updateAdminBadges();
             router('admin-requests'); // Re-render
         }
+        
+        // Admin: Generate Invoice
+        function generateInvoice() {
+            const newInv = {
+                id: generateInvId(),
+                clientId: '12345', // Mock assigning to first client
+                amount: '$500',
+                date: fmtDate(new Date()),
+                status: 'Pending'
+            };
+            db.invoices.unshift(newInv);
+            showToast('Invoice generated and sent to client.', 'success');
+            router('admin-billing');
+        }
+        
+        function filterLogs(val) {
+            const term = val.toLowerCase();
+            const rows = document.getElementById('logs-table-body').querySelectorAll('tr');
+            rows.forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.includes(term) ? '' : 'none';
+            });
+        }
+        
+        function exportLogs() {
+            showToast('Exporting logs to CSV...', 'info');
+            // Mock export delay
+            setTimeout(() => showToast('Download started', 'success'), 1500);
+        }
+
+        // Admin: Add Client Logic
+        function openAddClientModal() {
+            const modal = document.getElementById('modal-overlay');
+            const content = document.getElementById('modal-content');
+            
+            content.innerHTML = `
+                <div class="p-6">
+                    <h3 class="text-lg font-bold mb-4">Add New Client</h3>
+                    <form onsubmit="saveNewClient(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Company Name</label>
+                            <input type="text" id="new-client-name" required class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500" placeholder="e.g. Gamma Corp">
+                        </div>
+                         <div>
+                            <label class="block text-sm font-medium mb-1">Email</label>
+                            <input type="email" id="new-client-email" required class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500" placeholder="contact@gamma.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium mb-1">Initial Credits</label>
+                            <input type="number" id="new-client-credits" value="0" class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500">
+                        </div>
+                        <div class="flex gap-3 justify-end pt-2">
+                            <button type="button" onclick="closeModal()" class="text-slate-500 hover:text-slate-800 px-4 py-2">Cancel</button>
+                            <button type="submit" class="bg-brand-600 text-white px-4 py-2 rounded hover:bg-brand-700">Create Client</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+             modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+        }
+        
+        function saveNewClient(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-client-name').value;
+            const email = document.getElementById('new-client-email').value;
+            const credits = parseInt(document.getElementById('new-client-credits').value) || 0;
+            
+            const newClient = {
+                id: Date.now().toString(),
+                name: name,
+                email: email,
+                credits: credits,
+                status: 'Active',
+                joined: fmtDate(new Date()),
+                spent: 0
+            };
+            
+            db.clients.push(newClient);
+            db.logs.unshift({
+                id: Date.now(),
+                date: fmtDate(new Date()),
+                user: 'Admin',
+                action: 'Create Client',
+                details: `Created client ${name} with ${credits} Cr`
+            });
+            
+            showToast('Client created successfully', 'success');
+            closeModal();
+            router('admin-clients');
+        }
+        
+        function toggleClientStatus(id) {
+            const client = getClient(id);
+            client.status = client.status === 'Active' ? 'Suspended' : 'Active';
+            showToast(`Client ${client.name} is now ${client.status}`, 'info');
+            router('admin-clients');
+        }
 
         // Admin: Add Credits Modal
         let targetClientId = null;
@@ -779,7 +1013,7 @@
                     <div class="mb-4 text-sm text-slate-500">Current Balance: <span class="font-bold text-slate-800">${client.credits}</span></div>
                     
                     <label class="block text-sm font-medium mb-1">Amount to Add (or negative to remove)</label>
-                    <input type="number" id="modal-amount" class="w-full border border-slate-300 rounded p-2 mb-6 outline-none focus:border-brand-500" placeholder="e.g. 50">
+                    <input type="number" id="modal-amount" class="w-full border border-slate-300 rounded p-2 mb-6 outline-none focus:border-brand-500" placeholder="e.g. 50 or -20">
                     
                     <div class="flex gap-3 justify-end">
                         <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800 px-4 py-2">Cancel</button>
