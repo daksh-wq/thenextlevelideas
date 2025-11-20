@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgencyOS - Dashboard</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    
+    <!-- Babel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    
+    <!-- Lucide Icons (Latest version for full icon set) -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+        
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // --- ICON ADAPTER ---
+        // Renders Lucide icons from the global window.lucide object
+        // Note: lucide.icons keys are in camelCase (e.g., 'layoutDashboard')
+        const Icon = ({ name, size = 24, className = "", ...props }) => {
+            const [svgHtml, setSvgHtml] = useState('');
+
+            useEffect(() => {
+                if (window.lucide && window.lucide.icons) {
+                    const iconNode = window.lucide.icons[name];
+                    if (iconNode) {
+                        const svg = iconNode.toSVG({
+                            width: size,
+                            height: size,
+                            class: className,
+                            ...props
+                        });
+                        setSvgHtml(svg);
+                    } else {
+                        console.warn(`Icon "${name}" not found in Lucide library.`);
+                    }
+                }
+            }, [name, size, className]);
+
+            return <span dangerouslySetInnerHTML={{ __html: svgHtml }} className={`inline-flex items-center ${className}`} />;
+        };
+
+        // Mapped components passing correct camelCase keys
+        const Users = (p) => <Icon name="users" {...p} />;
+        const LayoutDashboard = (p) => <Icon name="layoutDashboard" {...p} />;
+        const CreditCard = (p) => <Icon name="creditCard" {...p} />;
+        const FileText = (p) => <Icon name="fileText" {...p} />;
+        const Bell = (p) => <Icon name="bell" {...p} />;
+        const Settings = (p) => <Icon name="settings" {...p} />;
+        const LogOut = (p) => <Icon name="logOut" {...p} />;
+        const Plus = (p) => <Icon name="plus" {...p} />;
+        const Minus = (p) => <Icon name="minus" {...p} />;
+        const Check = (p) => <Icon name="check" {...p} />;
+        const X = (p) => <Icon name="x" {...p} />;
+        const AlertCircle = (p) => <Icon name="alertCircle" {...p} />;
+        const Search = (p) => <Icon name="search" {...p} />;
+        const Briefcase = (p) => <Icon name="briefcase" {...p} />;
+        const History = (p) => <Icon name="history" {...p} />;
+        const MessageCircle = (p) => <Icon name="messageCircle" {...p} />;
+        const ChevronRight = (p) => <Icon name="chevronRight" {...p} />;
+        const Download = (p) => <Icon name="download" {...p} />;
+        const Shield = (p) => <Icon name="shield" {...p} />;
+        const DollarSign = (p) => <Icon name="dollarSign" {...p} />;
+        const PieChart = (p) => <Icon name="pieChart" {...p} />;
+        const Activity = (p) => <Icon name="activity" {...p} />;
+        const User = (p) => <Icon name="user" {...p} />;
+        const ArrowUpRight = (p) => <Icon name="arrowUpRight" {...p} />;
+        const ArrowDownRight = (p) => <Icon name="arrowDownRight" {...p} />;
+        const Filter = (p) => <Icon name="filter" {...p} />;
+        const Calendar = (p) => <Icon name="calendar" {...p} />;
+        const Star = (p) => <Icon name="star" {...p} />;
+        const Clock = (p) => <Icon name="clock" {...p} />;
+
+        // --- MOCK DATA ---
+
+        const INITIAL_CLIENTS = [
+            { id: 'c1', name: 'Acme Corp', email: 'contact@acme.com', credits: 150, status: 'Active', joined: '2023-01-15', avatar: 'AC' },
+            { id: 'c2', name: 'Stark Industries', email: 'tony@stark.com', credits: 45, status: 'Active', joined: '2023-03-10', avatar: 'SI' },
+            { id: 'c3', name: 'Wayne Ent', email: 'bruce@wayne.com', credits: 0, status: 'Suspended', joined: '2023-02-22', avatar: 'WE' },
+            { id: 'c4', name: 'Cyberdyne', email: 'skynet@cyberdyne.com', credits: 800, status: 'Active', joined: '2023-05-01', avatar: 'CY' },
+            { id: 'c5', name: 'Massive Dynamic', email: 'bell@massive.com', credits: 12, status: 'Pending', joined: '2023-11-05', avatar: 'MD' },
+        ];
+
+        const INITIAL_REQUESTS = [
+            { id: 'r1', clientId: 'c1', clientName: 'Acme Corp', clientAvatar: 'AC', type: 'Video Edit', cost: 20, status: 'Pending', date: '2023-10-25', details: '30s social cut for IG', priority: 'High' },
+            { id: 'r2', clientId: 'c2', clientName: 'Stark Industries', clientAvatar: 'SI', type: 'Thumbnail', cost: 5, status: 'Approved', date: '2023-10-24', details: 'Youtube cover for tech launch', priority: 'Medium' },
+            { id: 'r3', clientId: 'c4', clientName: 'Cyberdyne', clientAvatar: 'CY', type: 'Blog Post', cost: 8, status: 'In Progress', date: '2023-10-26', details: 'AI safety article', priority: 'Low' },
+        ];
+
+        const CREDIT_PACKAGES = [
+            { id: 'p1', name: 'Starter', credits: 50, price: 500, description: 'Perfect for small tweaks.', popular: false, color: 'blue' },
+            { id: 'p2', name: 'Growth', credits: 200, price: 1800, description: 'For consistent content needs.', popular: true, color: 'indigo' },
+            { id: 'p3', name: 'Enterprise', credits: 1000, price: 8000, description: 'Full scale agency support.', popular: false, color: 'slate' },
+        ];
+
+        const SERVICE_MENU = [
+            { id: 's1', name: 'Social Media Reel', cost: 15, icon: Activity, desc: 'Vertical 9:16 video, up to 60s' },
+            { id: 's2', name: 'Ad Creative (Static)', cost: 10, icon: FileText, desc: 'High conversion static imagery' },
+            { id: 's3', name: 'YouTube Thumbnail', cost: 5, icon: Star, desc: 'Click-optimized custom thumb' },
+            { id: 's4', name: 'Blog Post (1000w)', cost: 8, icon: FileText, desc: 'SEO optimized written content' },
+            { id: 's5', name: 'Video Edit (Long form)', cost: 50, icon: Activity, desc: 'Up to 10 mins, advanced editing' },
+        ];
+
+        const TRANSACTION_HISTORY = [
+            { id: 't1', clientId: 'c1', action: 'Purchase', amount: 200, date: '2023-10-01', type: 'credit' },
+            { id: 't2', clientId: 'c1', action: 'Service Deduction', amount: -20, date: '2023-10-25', note: 'Video Edit Approved', type: 'debit' },
+            { id: 't3', clientId: 'c2', action: 'Purchase', amount: 50, date: '2023-10-15', type: 'credit' },
+        ];
+
+        // --- UI COMPONENTS ---
+
+        const Card = ({ children, className = "", noPadding = false }) => (
+            <div className={`bg-white rounded-xl shadow-sm border border-slate-200 transition-all duration-200 ${className} ${noPadding ? '' : 'p-6'}`}>
+                {children}
+            </div>
+        );
+
+        const Button = ({ children, variant = "primary", onClick, className = "", disabled = false, size = "md" }) => {
+            const baseStyle = "rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 active:scale-95 focus:outline-none focus:ring-2 focus:ring-offset-2";
+            
+            const sizes = {
+                sm: "px-3 py-1.5 text-xs",
+                md: "px-5 py-2.5 text-sm",
+                lg: "px-6 py-3 text-base"
+            };
+
+            const variants = {
+                primary: "bg-indigo-600 text-white hover:bg-indigo-700 shadow-md shadow-indigo-100 disabled:opacity-50 disabled:shadow-none",
+                secondary: "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 shadow-sm disabled:bg-slate-50",
+                danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100",
+                success: "bg-emerald-600 text-white hover:bg-emerald-700",
+                ghost: "text-slate-500 hover:text-indigo-600 hover:bg-indigo-50"
+            };
+
+            return (
+                <button onClick={onClick} disabled={disabled} className={`${baseStyle} ${sizes[size]} ${variants[variant]} ${className}`}>
+                {children}
+                </button>
+            );
+        };
+
+        const Badge = ({ status }) => {
+            const styles = {
+                Active: "bg-emerald-50 text-emerald-700 border-emerald-100",
+                Suspended: "bg-red-50 text-red-700 border-red-100",
+                Pending: "bg-amber-50 text-amber-700 border-amber-100",
+                Approved: "bg-blue-50 text-blue-700 border-blue-100",
+                'In Progress': "bg-indigo-50 text-indigo-700 border-indigo-100",
+                Rejected: "bg-red-50 text-red-700 border-red-100",
+                Completed: "bg-slate-100 text-slate-700 border-slate-200"
+            };
+            
+            const dotColors = {
+                Active: "bg-emerald-500",
+                Suspended: "bg-red-500",
+                Pending: "bg-amber-500",
+                Approved: "bg-blue-500",
+                'In Progress': "bg-indigo-500",
+                Rejected: "bg-red-500",
+                Completed: "bg-slate-500"
+            };
+
+            return (
+                <span className={`px-2.5 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 w-fit ${styles[status] || styles.Completed}`}>
+                <span className={`w-1.5 h-1.5 rounded-full ${dotColors[status] || 'bg-slate-500'}`}></span>
+                {status}
+                </span>
+            );
+        };
+
+        const Avatar = ({ initials, size = "md" }) => {
+            const sizes = { sm: "w-8 h-8 text-xs", md: "w-10 h-10 text-sm", lg: "w-12 h-12 text-base" };
+            return (
+                <div className={`${sizes[size]} rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center font-bold text-indigo-600 shadow-sm`}>
+                {initials}
+                </div>
+            );
+        };
+
+        // --- MAIN APP LOGIC ---
+
+        function AgencyDashboard() {
+            const [user, setUser] = useState(null);
+            const [clients, setClients] = useState(INITIAL_CLIENTS);
+            const [requests, setRequests] = useState(INITIAL_REQUESTS);
+            const [history, setHistory] = useState(TRANSACTION_HISTORY);
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const [notifications, setNotifications] = useState([]);
+            const [modals, setModals] = useState({ type: null, data: null });
+
+            const addToast = (message, type = 'success') => {
+                const id = Date.now();
+                setNotifications(prev => [...prev, { id, message, type }]);
+                setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 4000);
+            };
+
+            const handleLogin = (role, username, password) => {
+                if (username === '12345' && password === '12345') {
+                    setUser({ 
+                        id: role === 'client' ? 'c1' : 'admin', 
+                        role, 
+                        name: role === 'client' ? 'Acme Corp' : 'Admin User' 
+                    });
+                    setActiveTab(role === 'client' ? 'client-home' : 'admin-overview');
+                    addToast(`Welcome back, ${role === 'client' ? 'Client' : 'Admin'}`, 'success');
+                } else {
+                    addToast('Invalid Credentials', 'error');
+                }
+            };
+
+            const handleLogout = () => {
+                setUser(null);
+                setActiveTab('dashboard');
+                setModals({ type: null, data: null });
+            };
+
+            // Action: Update client credits manually
+            const updateClientCredits = (clientId, amount, reason) => {
+                setClients(prev => prev.map(c => {
+                    if (c.id === clientId) return { ...c, credits: Math.max(0, c.credits + amount) };
+                    return c;
+                }));
+                const newTx = {
+                    id: `t${Date.now()}`,
+                    clientId,
+                    action: amount > 0 ? 'Admin Grant' : 'Admin Deduction',
+                    amount,
+                    date: new Date().toISOString().split('T')[0],
+                    note: reason,
+                    type: amount > 0 ? 'credit' : 'debit'
+                };
+                setHistory(prev => [...prev, newTx]);
+                addToast('Client credits updated successfully');
+                setModals({ type: null, data: null });
+            };
+
+            // Action: Approve or Reject Request
+            const handleRequestAction = (req, action) => {
+                if (action === 'Approve') {
+                    const client = clients.find(c => c.id === req.clientId);
+                    if (client.credits < req.cost) {
+                        addToast('Insufficient credits to approve', 'error');
+                        return;
+                    }
+                    // Deduct credits
+                    setClients(prev => prev.map(c => c.id === req.clientId ? { ...c, credits: c.credits - req.cost } : c));
+                    // Add history
+                    setHistory(prev => [...prev, {
+                        id: `t${Date.now()}`,
+                        clientId: req.clientId,
+                        action: 'Service Cost',
+                        amount: -req.cost,
+                        date: new Date().toISOString().split('T')[0],
+                        note: `Approved: ${req.type}`,
+                        type: 'debit'
+                    }]);
+                }
+                
+                setRequests(prev => prev.map(r => r.id === req.id ? { ...r, status: action === 'Approve' ? 'Approved' : 'Rejected' } : r));
+                addToast(`Request ${action}d successfully`, 'success');
+                setModals({ type: null, data: null });
+            };
+
+            // Action: Client submits new work
+            const submitClientRequest = (serviceId, notes) => {
+                const service = SERVICE_MENU.find(s => s.id === serviceId);
+                const newReq = {
+                    id: `r${Date.now()}`,
+                    clientId: user.id,
+                    clientName: user.name,
+                    clientAvatar: 'AC',
+                    type: service.name,
+                    cost: service.cost,
+                    status: 'Pending',
+                    date: new Date().toISOString().split('T')[0],
+                    details: notes,
+                    priority: 'Medium'
+                };
+                setRequests(prev => [newReq, ...prev]);
+                addToast('Request submitted! Tracking ID generated.', 'success');
+                setActiveTab('client-history');
+            };
+
+            // Action: Client purchases credits
+            const purchaseCredits = (pkg) => {
+                // Simulate async API call
+                setTimeout(() => {
+                    setClients(prev => prev.map(c => c.id === user.id ? { ...c, credits: c.credits + pkg.credits } : c));
+                    setHistory(prev => [...prev, {
+                        id: `t${Date.now()}`,
+                        clientId: user.id,
+                        action: 'Purchase',
+                        amount: pkg.credits,
+                        date: new Date().toISOString().split('T')[0],
+                        note: `Bought ${pkg.name} Package`,
+                        type: 'credit'
+                    }]);
+                    addToast(`Purchase Successful! Added ${pkg.credits} credits.`, 'success');
+                    setActiveTab('client-home');
+                }, 800);
+            };
+
+            // --- RENDERERS ---
+
+            const ToastContainer = () => (
+                <div className="fixed top-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
+                    {notifications.map(n => (
+                        <div key={n.id} className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-xl border animate-in ${n.type === 'error' ? 'bg-white border-red-200 text-red-700' : 'bg-slate-800 border-slate-700 text-white'}`}>
+                            {n.type === 'error' ? <AlertCircle size={20} /> : <Check size={20} className="text-emerald-400" />}
+                            <p className="text-sm font-medium">{n.message}</p>
+                        </div>
+                    ))}
+                </div>
+            );
+
+            const LoginScreen = () => {
+                const [activeRole, setActiveRole] = useState('admin');
+                const [uid, setUid] = useState('12345');
+                const [pwd, setPwd] = useState('12345');
+
+                return (
+                    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+                         <div className="absolute inset-0 z-0 overflow-hidden">
+                            <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-indigo-200/30 blur-[120px]"></div>
+                            <div className="absolute bottom-[10%] right-[5%] w-[30%] h-[30%] rounded-full bg-blue-200/30 blur-[100px]"></div>
+                        </div>
+
+                        <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden flex flex-col md:flex-row relative z-10 min-h-[600px]">
+                            {/* Brand Side */}
+                            <div className="md:w-5/12 bg-slate-900 p-12 text-white flex flex-col justify-between relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-slate-900 opacity-90"></div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center backdrop-blur-sm">
+                                            <Shield className="text-white" size={24} />
+                                        </div>
+                                        <h1 className="text-2xl font-bold tracking-tight">AgencyOS</h1>
+                                    </div>
+                                    <h2 className="text-3xl font-bold leading-tight mb-4">Manage your creative operations.</h2>
+                                    <p className="text-indigo-200 text-lg">Streamlined workflows, credit-based billing, and transparent reporting.</p>
+                                </div>
+                                <div className="relative z-10 text-sm text-slate-400">&copy; 2025 AgencyOS Inc.</div>
+                            </div>
+
+                            {/* Login Form */}
+                            <div className="md:w-7/12 p-12 flex flex-col justify-center">
+                                <div className="max-w-md mx-auto w-full">
+                                    <h3 className="text-2xl font-bold text-slate-800 mb-2">Welcome back</h3>
+                                    <p className="text-slate-500 mb-8">Please enter your details to sign in.</p>
+
+                                    <div className="bg-slate-50 p-1 rounded-xl flex mb-8 border border-slate-200">
+                                        {['admin', 'client'].map(role => (
+                                            <button
+                                                key={role}
+                                                onClick={() => setActiveRole(role)}
+                                                className={`flex-1 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${activeRole === role ? 'bg-white shadow-sm text-slate-800 ring-1 ring-slate-200' : 'text-slate-500 hover:text-slate-700'}`}
+                                            >
+                                                {role.charAt(0).toUpperCase() + role.slice(1)} Portal
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="space-y-5">
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">User ID</label>
+                                            <input type="text" value={uid} onChange={e => setUid(e.target.value)} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-semibold text-slate-700 mb-1.5">Password</label>
+                                            <input type="password" value={pwd} onChange={e => setPwd(e.target.value)} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all" />
+                                        </div>
+                                        <Button onClick={() => handleLogin(activeRole, uid, pwd)} className="w-full py-3 text-base shadow-lg shadow-indigo-100">
+                                            Sign In as {activeRole === 'admin' ? 'Admin' : 'Client'}
+                                        </Button>
+                                    </div>
+                                    
+                                    <div className="mt-8 text-center">
+                                        <div className="inline-block px-4 py-2 bg-indigo-50 text-indigo-700 rounded-full text-xs font-medium border border-indigo-100">
+                                            Demo: User 12345 &bull; Pass 12345
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            // --- ADMIN DASHBOARD COMPONENTS ---
+
+            const AdminSidebar = () => (
+                <aside className="w-72 bg-slate-900 text-slate-300 flex flex-col h-screen fixed left-0 top-0 z-20 shadow-2xl border-r border-slate-800">
+                    <div className="p-6 flex items-center gap-3 border-b border-slate-800/50">
+                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-500/30">
+                            <Shield className="text-white" size={18} />
+                        </div>
+                        <span className="text-white text-lg font-bold tracking-wide">AgencyOS</span>
+                    </div>
+                    <div className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 mb-2">Main Menu</div>
+                        {[
+                            { id: 'admin-overview', icon: LayoutDashboard, label: 'Overview' },
+                            { id: 'admin-clients', icon: Users, label: 'Clients' },
+                            { id: 'admin-requests', icon: Briefcase, label: 'Work Queue', badge: requests.filter(r => r.status === 'Pending').length },
+                        ].map(item => (
+                            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${activeTab === item.id ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-900/20' : 'hover:bg-slate-800 hover:text-white'}`}>
+                                <div className="flex items-center gap-3">
+                                    <item.icon size={20} className={activeTab === item.id ? 'text-indigo-200' : 'text-slate-400 group-hover:text-white'} />
+                                    <span className="font-medium">{item.label}</span>
+                                </div>
+                                {item.badge > 0 && <span className="bg-indigo-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">{item.badge}</span>}
+                            </button>
+                        ))}
+                        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-4 mt-8 mb-2">Finance</div>
+                        {[
+                            { id: 'admin-billing', icon: DollarSign, label: 'Billing & Packages' },
+                            { id: 'admin-reports', icon: PieChart, label: 'Financial Reports' },
+                        ].map(item => (
+                            <button key={item.id} onClick={() => setActiveTab(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${activeTab === item.id ? 'bg-indigo-600 text-white shadow-lg' : 'hover:bg-slate-800 hover:text-white'}`}>
+                                <item.icon size={20} className={activeTab === item.id ? 'text-indigo-200' : 'text-slate-400 group-hover:text-white'} />
+                                <span className="font-medium">{item.label}</span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="p-4 border-t border-slate-800 bg-slate-900/50 backdrop-blur">
+                        <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white text-sm font-medium transition-colors border border-slate-700">
+                            <LogOut size={16} /> Sign Out
+                        </button>
+                    </div>
+                </aside>
+            );
+
+            const StatCard = ({ title, value, trend, icon: Icon, color }) => (
+                <Card className="relative overflow-hidden border-l-4" style={{ borderLeftColor: color }}>
+                    <div className="flex justify-between items-start">
+                        <div>
+                            <p className="text-slate-500 text-sm font-medium uppercase tracking-wide">{title}</p>
+                            <h3 className="text-3xl font-bold text-slate-900 mt-2">{value}</h3>
+                        </div>
+                        <div className={`p-3 rounded-xl bg-opacity-10`} style={{ backgroundColor: color + '20', color: color }}>
+                            <Icon size={24} />
+                        </div>
+                    </div>
+                    <div className="mt-4 flex items-center gap-2 text-sm">
+                        <span className={`flex items-center font-semibold ${trend > 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                            {trend > 0 ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
+                            {Math.abs(trend)}%
+                        </span>
+                        <span className="text-slate-400">vs last month</span>
+                    </div>
+                </Card>
+            );
+
+            const AdminOverview = () => {
+                const totalCredits = clients.reduce((sum, c) => sum + c.credits, 0);
+                const pendingReqs = requests.filter(r => r.status === 'Pending').length;
+                return (
+                    <div className="space-y-8 animate-in">
+                        <div>
+                            <h1 className="text-3xl font-bold text-slate-900">Dashboard Overview</h1>
+                            <p className="text-slate-500 mt-1">Welcome back, here's what's happening today.</p>
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            <StatCard title="Total Clients" value={clients.length} trend={12} icon={Users} color="#6366f1" />
+                            <StatCard title="Active Credits" value={totalCredits} trend={-5} icon={CreditCard} color="#10b981" />
+                            <StatCard title="Pending Requests" value={pendingReqs} trend={8} icon={Bell} color="#f59e0b" />
+                            <StatCard title="Revenue (MRR)" value="$12.4k" trend={24} icon={DollarSign} color="#3b82f6" />
+                        </div>
+                        {/* Work Queue Preview */}
+                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <Card className="lg:col-span-2" noPadding>
+                                <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50 rounded-t-xl">
+                                    <h3 className="font-bold text-slate-900 text-lg">Work Queue</h3>
+                                    <Button variant="secondary" size="sm" onClick={() => setActiveTab('admin-requests')}>View All</Button>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    {requests.slice(0, 4).map(req => (
+                                        <div key={req.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                            <div className="flex items-center gap-4">
+                                                <Avatar initials={req.clientAvatar} size="md" />
+                                                <div>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="font-semibold text-slate-900">{req.type}</p>
+                                                        {req.priority === 'High' && <span className="text-[10px] font-bold bg-red-100 text-red-600 px-1.5 py-0.5 rounded uppercase">High</span>}
+                                                    </div>
+                                                    <p className="text-sm text-slate-500">{req.clientName} &bull; {req.date}</p>
+                                                </div>
+                                            </div>
+                                            <div className="flex items-center gap-6">
+                                                <Badge status={req.status} />
+                                                <button className="text-slate-400 hover:text-indigo-600"><ChevronRight size={20} /></button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                            <Card noPadding>
+                                <div className="p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-xl">
+                                    <h3 className="font-bold text-slate-900 text-lg">Top Clients</h3>
+                                </div>
+                                <div className="divide-y divide-slate-100">
+                                    {clients.sort((a,b) => b.credits - a.credits).slice(0, 5).map(client => (
+                                        <div key={client.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
+                                            <div className="flex items-center gap-3">
+                                                <Avatar initials={client.avatar} size="sm" />
+                                                <div className="overflow-hidden">
+                                                    <p className="font-semibold text-slate-900 text-sm truncate w-32">{client.name}</p>
+                                                </div>
+                                            </div>
+                                            <span className="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded text-xs">{client.credits} Cr</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Card>
+                        </div>
+                    </div>
+                );
+            };
+
+            const ClientNavbar = () => (
+                <nav className="bg-white/80 backdrop-blur-md border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex justify-between h-20">
+                            <div className="flex items-center gap-10">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                                        <Shield className="text-white" size={18} />
+                                    </div>
+                                    <span className="text-xl font-bold text-slate-900 tracking-tight">AgencyOS</span>
+                                </div>
+                                <div className="hidden md:flex space-x-1">
+                                    {[{ id: 'client-home', label: 'Dashboard' }, { id: 'client-request', label: 'Request Work' }, { id: 'client-history', label: 'History' }].map(link => (
+                                        <button key={link.id} onClick={() => setActiveTab(link.id)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeTab === link.id ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'}`}>
+                                            {link.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-6">
+                                <div className="hidden sm:block text-right">
+                                    <p className="text-xs text-slate-500 uppercase font-bold tracking-wider">Available Credits</p>
+                                    <p className="text-xl font-black text-slate-900 leading-none">{clients.find(c => c.id === user.id).credits}</p>
+                                </div>
+                                <div className="h-8 w-px bg-slate-200 hidden sm:block"></div>
+                                <div className="flex items-center gap-3 group cursor-pointer" onClick={handleLogout}>
+                                    <Avatar initials="AC" />
+                                    <div className="hidden md:block text-left">
+                                        <p className="text-sm font-bold text-slate-800 leading-none">{user.name}</p>
+                                    </div>
+                                    <LogOut size={18} className="text-slate-400 group-hover:text-red-500 transition-colors" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </nav>
+            );
+
+            const ClientHome = () => {
+                const myClient = clients.find(c => c.id === user.id);
+                const myRequests = requests.filter(r => r.clientId === user.id);
+                return (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10 animate-in">
+                        <div className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-3xl p-10 text-white shadow-2xl relative overflow-hidden">
+                            <div className="relative z-10 flex flex-col md:flex-row justify-between items-end gap-6">
+                                <div>
+                                    <h1 className="text-4xl font-bold mb-3 tracking-tight">Hello, {user.name} 👋</h1>
+                                    <p className="text-indigo-100 text-lg max-w-xl leading-relaxed">You have <span className="font-bold text-white">{myClient.credits} credits</span> remaining.</p>
+                                </div>
+                                <div className="flex gap-4">
+                                    <Button className="bg-white text-indigo-600 hover:bg-indigo-50 border-none shadow-xl" onClick={() => setActiveTab('client-request')}><Plus size={18} /> Request Work</Button>
+                                    <Button className="bg-indigo-800/50 text-white hover:bg-indigo-800/70 backdrop-blur-sm border border-indigo-400/30" onClick={() => setActiveTab('client-buy')}><CreditCard size={18} /> Buy Credits</Button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div className="grid lg:grid-cols-3 gap-8">
+                            <div className="lg:col-span-2 space-y-8">
+                                <div className="flex items-center justify-between">
+                                    <h3 className="font-bold text-slate-900 text-xl">Active Projects</h3>
+                                </div>
+                                {myRequests.filter(r => ['Pending', 'Approved', 'In Progress'].includes(r.status)).length === 0 ? (
+                                    <div className="border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center bg-slate-50/50">
+                                        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-400"><Briefcase size={32} /></div>
+                                        <h3 className="text-lg font-bold text-slate-700">No active projects</h3>
+                                        <Button className="mt-4" onClick={() => setActiveTab('client-request')}>Start Project</Button>
+                                    </div>
+                                ) : (
+                                    <div className="grid gap-4">
+                                        {myRequests.filter(r => ['Pending', 'Approved', 'In Progress'].includes(r.status)).map(req => (
+                                            <Card key={req.id} className="group hover:border-indigo-200 transition-all" noPadding>
+                                                <div className="p-6 flex flex-col sm:flex-row gap-6">
+                                                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center flex-shrink-0 ${req.status === 'Approved' ? 'bg-emerald-100 text-emerald-600' : 'bg-indigo-100 text-indigo-600'}`}>
+                                                        {req.status === 'Approved' ? <Check size={32} /> : <Clock size={32} />}
+                                                    </div>
+                                                    <div className="flex-1">
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <div><h4 className="text-lg font-bold text-slate-900">{req.type}</h4><p className="text-sm text-slate-500">{req.details}</p></div>
+                                                            <Badge status={req.status} />
+                                                        </div>
+                                                        <div className="flex items-center gap-6 mt-4 text-sm text-slate-500">
+                                                            <span className="flex items-center gap-2"><Calendar size={14} /> {req.date}</span>
+                                                            <span className="flex items-center gap-2"><CreditCard size={14} /> {req.cost} Cr</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                             <div className="space-y-8">
+                                <Card className="bg-slate-900 text-white border-slate-800 shadow-xl">
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="p-3 bg-white/10 rounded-full text-emerald-400 shadow-inner"><MessageCircle size={24} /></div>
+                                        <div><p className="font-bold text-lg">Need Help?</p><p className="text-slate-400 text-sm">WhatsApp Support</p></div>
+                                    </div>
+                                    <Button className="w-full bg-emerald-500 hover:bg-emerald-600 text-white border-none shadow-lg">Open WhatsApp Chat</Button>
+                                </Card>
+                                <Card>
+                                    <h4 className="font-bold text-slate-800 mb-4 flex items-center gap-2"><Activity size={16} className="text-indigo-500" /> Recent Activity</h4>
+                                    <div className="relative border-l-2 border-slate-100 ml-3 space-y-6 pl-6 pb-2">
+                                        {history.filter(h => h.clientId === user.id).slice().reverse().slice(0, 4).map(h => (
+                                            <div key={h.id} className="relative">
+                                                <div className={`absolute -left-[31px] top-1 w-4 h-4 rounded-full border-2 border-white shadow-sm ${h.type === 'credit' ? 'bg-emerald-500' : 'bg-indigo-500'}`}></div>
+                                                <p className="text-sm font-bold text-slate-800">{h.action}</p>
+                                                <p className="text-xs text-slate-500 mb-1">{h.date}</p>
+                                                <span className={`text-xs font-bold px-2 py-0.5 rounded ${h.amount > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'}`}>{h.amount > 0 ? '+' : ''}{h.amount} Credits</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Card>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            // --- MODAL ---
+            const RenderModal = () => {
+                if (!modals.type) return null;
+                const closeModal = () => setModals({ type: null, data: null });
+
+                return (
+                    <div className="fixed inset-0 bg-slate-900/60 z-[70] flex items-center justify-center backdrop-blur-sm animate-in">
+                        <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md relative overflow-hidden">
+                            <div className="bg-slate-50 px-6 py-4 border-b border-slate-100 flex justify-between items-center">
+                                <h3 className="font-bold text-slate-800 text-lg">
+                                    {modals.type === 'ADD_CREDIT' && 'Grant Credits'}
+                                    {modals.type === 'REMOVE_CREDIT' && 'Deduct Credits'}
+                                    {modals.type === 'APPROVE_REQ' && 'Approve Request'}
+                                </h3>
+                                <button onClick={closeModal}><X size={20} className="text-slate-400 hover:text-slate-600" /></button>
+                            </div>
+                            <div className="p-6">
+                                {modals.type === 'ADD_CREDIT' && (
+                                    <div className="space-y-4">
+                                        <p className="text-sm text-slate-600">Add credits to <strong>{modals.data.name}</strong></p>
+                                        <div className="grid grid-cols-3 gap-3">
+                                            {[10, 50, 100].map(amt => (
+                                                <button key={amt} onClick={() => updateClientCredits(modals.data.id, amt, 'Manual Grant')} className="py-2 border rounded hover:bg-indigo-50 hover:border-indigo-200 hover:text-indigo-700 text-sm">+{amt} Cr</button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {modals.type === 'REMOVE_CREDIT' && (
+                                    <div className="space-y-4 text-center">
+                                        <p>Remove credits from <strong>{modals.data.name}</strong>?</p>
+                                        <Button variant="danger" className="w-full" onClick={() => updateClientCredits(modals.data.id, -10, 'Penalty')}>Deduct 10 Credits</Button>
+                                    </div>
+                                )}
+                                {modals.type === 'APPROVE_REQ' && (
+                                    <div className="space-y-4">
+                                        <div className="bg-slate-50 p-4 rounded-xl border text-sm space-y-2">
+                                            <div className="flex justify-between"><span>Cost</span><span className="font-bold text-red-500">-{modals.data.cost} Cr</span></div>
+                                        </div>
+                                        <div className="flex gap-3">
+                                            <Button variant="secondary" className="flex-1" onClick={closeModal}>Cancel</Button>
+                                            <Button className="flex-1" onClick={() => handleRequestAction(modals.data, 'Approve')}>Confirm</Button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            // --- ROUTING ---
+
+            if (!user) return <><ToastContainer /><LoginScreen /></>;
+
+            return (
+                <div className="flex min-h-screen bg-slate-50 font-sans text-slate-900 selection:bg-indigo-100">
+                    <ToastContainer />
+                    {user.role === 'admin' ? (
+                        <>
+                            <AdminSidebar />
+                            <main className="flex-1 pl-72 p-8 overflow-y-auto min-h-screen">
+                                <div className="max-w-7xl mx-auto">
+                                    {activeTab === 'admin-overview' && <AdminOverview />}
+                                    {activeTab === 'admin-clients' && <AdminClientManager />}
+                                    {/* Request Queue & Billing would go here similarly */}
+                                </div>
+                                <RenderModal />
+                            </main>
+                        </>
+                    ) : (
+                        <div className="w-full">
+                            <ClientNavbar />
+                            {activeTab === 'client-home' && <ClientHome />}
+                            {/* Client Request & History would go here similarly */}
+                            <RenderModal />
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AgencyDashboard />);
+    </script>
+</body>
+</html>
