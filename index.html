@@ -5,34 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgencyFlow | Enterprise Credit Dashboard</title>
     
-    <!-- Tailwind CSS (Requires Internet) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- FontAwesome (Requires Internet) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Google Fonts (Requires Internet) -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* CSS Pattern Replacement for external image to prevent load errors */
         .pattern-bg {
             background-color: #1e3a8a;
             background-image: radial-gradient(#3b82f6 1px, transparent 1px);
             background-size: 20px 20px;
             opacity: 0.1;
         }
+        .chat-bubble { position: relative; max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; }
+        .chat-mine { background-color: #3b82f6; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+        .chat-other { background-color: #f1f5f9; color: #1e293b; margin-right: auto; border-bottom-left-radius: 2px; }
     </style>
 
     <script>
@@ -41,7 +34,6 @@
                 extend: {
                     colors: {
                         brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
-                        dark: '#0f172a'
                     }
                 }
             }
@@ -50,26 +42,20 @@
 </head>
 <body class="bg-slate-50 text-slate-800 h-screen overflow-hidden flex flex-col">
 
-    <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
     <!-- Modal Overlay -->
     <div id="modal-overlay" class="fixed inset-0 bg-black/50 z-40 hidden flex items-center justify-center backdrop-blur-sm transition-opacity opacity-0">
-        <div id="modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-md transform scale-95 transition-all duration-200 overflow-hidden">
-            <!-- Dynamic Modal Content -->
-        </div>
+        <div id="modal-content" class="bg-white rounded-xl shadow-2xl w-full max-w-md transform scale-95 transition-all duration-200 overflow-hidden"></div>
     </div>
 
     <!-- Main App Container -->
     <div id="app" class="w-full h-full flex relative">
-        <!-- Login Screen (Default) -->
+        <!-- Login Screen -->
         <div id="login-view" class="absolute inset-0 z-30 bg-slate-100 flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl flex overflow-hidden min-h-[600px]">
-                <!-- Left Brand Side -->
                 <div class="hidden md:flex w-1/2 bg-brand-900 text-white flex-col justify-between p-12 relative overflow-hidden">
-                    <!-- Updated to pure CSS pattern to avoid external 404/DNS errors -->
                     <div class="absolute top-0 left-0 w-full h-full pattern-bg"></div>
-                    
                     <div class="z-10">
                         <div class="text-3xl font-bold tracking-tight mb-2"><i class="fa-solid fa-layer-group mr-2"></i>AGENCY<span class="text-brand-500">FLOW</span></div>
                         <p class="text-brand-100">Enterprise Marketing Operations</p>
@@ -81,19 +67,15 @@
                     <div class="z-10 text-sm text-brand-400">© 2025 AgencyFlow Operations.</div>
                 </div>
                 
-                <!-- Right Login Form Side -->
                 <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
                     <div class="mb-8 text-center md:text-left">
                         <h1 class="text-2xl font-bold text-slate-900">Welcome back</h1>
                         <p class="text-slate-500">Select your portal to continue.</p>
                     </div>
-
-                    <!-- Toggle -->
                     <div class="bg-slate-100 p-1 rounded-lg flex mb-8">
                         <button onclick="switchLoginTab('admin')" id="tab-admin" class="flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-brand-700">Admin Portal</button>
                         <button onclick="switchLoginTab('client')" id="tab-client" class="flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700">Client Portal</button>
                     </div>
-
                     <form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
                         <div>
                             <label class="block text-sm font-medium text-slate-700 mb-1">User ID</label>
@@ -109,35 +91,26 @@
                                 <input type="password" id="login-pass" value="12345" class="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition" placeholder="••••••">
                             </div>
                         </div>
-                        
                         <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-2.5 rounded-lg transition-all shadow-lg shadow-brand-500/30 flex justify-center items-center gap-2">
                             <span>Log In</span>
                             <i class="fa-solid fa-arrow-right"></i>
                         </button>
                     </form>
-                    
-                    <div class="mt-6 text-center text-xs text-slate-400">
-                        <p>Demo Access: ID <strong>12345</strong> / Pass <strong>12345</strong></p>
-                    </div>
+                    <div class="mt-6 text-center text-xs text-slate-400"><p>Demo Access: ID <strong>12345</strong> / Pass <strong>12345</strong></p></div>
                 </div>
             </div>
         </div>
 
-        <!-- App Layout (Initially Hidden) -->
+        <!-- App Layout -->
         <div id="main-layout" class="hidden w-full h-full flex">
-            <!-- Sidebar -->
             <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300" id="sidebar">
                 <div class="p-6 flex items-center justify-between text-white border-b border-slate-800">
                     <div class="font-bold text-xl tracking-wider"><i class="fa-solid fa-layer-group mr-2"></i>AGENCY</div>
                 </div>
-                
                 <div class="p-4">
                     <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Menu</div>
-                    <nav id="nav-links" class="space-y-1">
-                        <!-- Injected via JS -->
-                    </nav>
+                    <nav id="nav-links" class="space-y-1"></nav>
                 </div>
-
                 <div class="mt-auto p-4 border-t border-slate-800">
                     <div class="flex items-center gap-3 mb-4">
                         <div class="w-10 h-10 rounded-full bg-brand-600 flex items-center justify-center text-white font-bold" id="user-avatar">A</div>
@@ -152,9 +125,7 @@
                 </div>
             </aside>
 
-            <!-- Main Content -->
             <main class="flex-1 flex flex-col h-full overflow-hidden bg-slate-50">
-                <!-- Top Header -->
                 <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm z-20">
                     <h2 id="page-title" class="text-xl font-semibold text-slate-800">Dashboard</h2>
                     <div class="flex items-center gap-4">
@@ -165,19 +136,13 @@
                         <div id="header-actions"></div>
                     </div>
                 </header>
-
-                <!-- Content Area -->
-                <div id="content-area" class="flex-1 overflow-y-auto p-6 md:p-8 relative">
-                    <!-- Content Injected Here -->
-                </div>
+                <div id="content-area" class="flex-1 overflow-y-auto p-6 md:p-8 relative"></div>
             </main>
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
     <script>
         // --- DATA & STATE MANAGEMENT ---
-        
         const SERVICES = [
             { id: 'vid_edit', name: 'Reel/TikTok Edit', cost: 3, icon: 'fa-video' },
             { id: 'ad_copy', name: 'Ad Copywriting', cost: 2, icon: 'fa-pen-nib' },
@@ -192,32 +157,61 @@
             { id: 3, name: 'Agency Scale', credits: 100, price: '$2,000' }
         ];
 
-        // Mock Database
+        const TEAM_MEMBERS = [
+            { id: 'tm1', name: 'Sarah (Editor)' },
+            { id: 'tm2', name: 'Mike (Designer)' },
+            { id: 'tm3', name: 'Jessica (Manager)' }
+        ];
+
         const db = {
             clients: [
-                { 
-                    id: '12345', 
-                    name: 'Acme Corp', 
-                    email: 'marketing@acme.com',
-                    credits: 45, 
-                    status: 'Active', 
-                    joined: '2023-01-15',
-                    spent: 120
-                },
-                { 
-                    id: '67890', 
-                    name: 'Beta Startups', 
-                    email: 'founder@beta.io',
-                    credits: 2, 
-                    status: 'Suspended', 
-                    joined: '2023-06-20',
-                    spent: 50
-                }
+                { id: '12345', name: 'Acme Corp', email: 'marketing@acme.com', credits: 45, status: 'Active', joined: '2023-01-15', spent: 120 },
+                { id: '67890', name: 'Beta Startups', email: 'founder@beta.io', credits: 2, status: 'Suspended', joined: '2023-06-20', spent: 50 }
             ],
             requests: [
-                { id: 'REQ-101', clientId: '12345', service: 'Reel/TikTok Edit', cost: 3, status: 'Completed', date: '2023-10-25', notes: 'Make it pop!' },
-                { id: 'REQ-102', clientId: '12345', service: 'Strategy Call (1h)', cost: 10, status: 'Approved', date: '2023-10-28', notes: 'Q4 Planning' },
-                { id: 'REQ-103', clientId: '67890', service: 'Static Ad Design', cost: 4, status: 'Pending', date: '2023-11-01', notes: 'Black Friday Promo' }
+                { 
+                    id: 'REQ-101', 
+                    clientId: '12345', 
+                    service: 'Reel/TikTok Edit', 
+                    cost: 3, 
+                    status: 'Completed', 
+                    date: '2023-10-25', 
+                    notes: 'Make it pop!',
+                    assignee: 'Sarah (Editor)',
+                    eta: '2023-10-26',
+                    files: ['Raw_Footage_01.mp4', 'Logo.png'],
+                    messages: [
+                        { sender: 'Client', text: 'Uploaded the raw files. Please sync to the beat.', time: 'Oct 25, 09:00 AM' },
+                        { sender: 'Sarah (Editor)', text: 'Got it! Working on the rough cut now.', time: 'Oct 25, 10:30 AM' },
+                        { sender: 'Sarah (Editor)', text: 'Sent the draft. Let me know what you think.', time: 'Oct 25, 04:00 PM' }
+                    ]
+                },
+                { 
+                    id: 'REQ-102', 
+                    clientId: '12345', 
+                    service: 'Strategy Call (1h)', 
+                    cost: 10, 
+                    status: 'Approved', 
+                    date: '2023-10-28', 
+                    notes: 'Q4 Planning',
+                    assignee: 'Jessica (Manager)',
+                    eta: '2023-11-01',
+                    files: ['Q3_Report.pdf'],
+                    messages: []
+                },
+                { 
+                    id: 'REQ-103', 
+                    clientId: '67890', 
+                    service: 'Static Ad Design', 
+                    cost: 4, 
+                    status: 'Pending', 
+                    date: '2023-11-01', 
+                    notes: 'Black Friday Promo',
+                    assignee: 'Unassigned',
+                    eta: 'TBD',
+                    files: [],
+                    messages: []
+                }
             ],
             invoices: [
                 { id: 'INV-2023-001', clientId: '12345', amount: '$1,100', date: '2023-10-15', status: 'Paid' },
@@ -225,32 +219,24 @@
             ],
             logs: [
                 { id: 1, date: '2023-11-01 10:00', user: 'Admin', action: 'System Login', details: 'Logged in from IP 192.168.1.1' },
-                { id: 2, date: '2023-10-28 14:30', user: 'Acme Corp', action: 'Request Approved', details: 'Strategy Call deducted 10 credits' },
-                { id: 3, date: '2023-10-25 09:15', user: 'Admin', action: 'Credit Adjustment', details: 'Added 50 credits to Acme Corp' }
+                { id: 2, date: '2023-10-28 14:30', user: 'Acme Corp', action: 'Request Approved', details: 'Strategy Call deducted 10 credits' }
             ]
         };
 
         let currentUser = null;
-        let currentRole = null; // 'admin' or 'client'
+        let currentRole = null;
 
-        // --- UTILS ---
         const getClient = (id) => db.clients.find(c => c.id === id);
         const fmtDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         const generateId = () => 'REQ-' + Math.floor(Math.random() * 10000);
         const generateInvId = () => 'INV-' + new Date().getFullYear() + '-' + Math.floor(Math.random() * 1000);
 
-        // --- AUTH LOGIC ---
-
+        // --- AUTH ---
         let loginTab = 'admin';
-
         function switchLoginTab(tab) {
             loginTab = tab;
-            document.getElementById('tab-admin').className = tab === 'admin' ? 
-                "flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-brand-700" : 
-                "flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
-            document.getElementById('tab-client').className = tab === 'client' ? 
-                "flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-brand-700" : 
-                "flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
+            document.getElementById('tab-admin').className = tab === 'admin' ? "flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-brand-700" : "flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
+            document.getElementById('tab-client').className = tab === 'client' ? "flex-1 py-2 rounded-md text-sm font-medium transition-all bg-white shadow-sm text-brand-700" : "flex-1 py-2 rounded-md text-sm font-medium transition-all text-slate-500 hover:text-slate-700";
         }
 
         function handleLogin(e) {
@@ -258,29 +244,23 @@
             const id = document.getElementById('login-id').value;
             const pass = document.getElementById('login-pass').value;
 
-            // Demo check
             if (id === '12345' && pass === '12345') {
-                // Simulate loading
                 const btn = e.target.querySelector('button');
-                const originalContent = btn.innerHTML;
                 btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> Authenticating...`;
-                
                 setTimeout(() => {
                     document.getElementById('login-view').classList.add('hidden');
                     document.getElementById('main-layout').classList.remove('hidden');
-                    
                     currentRole = loginTab;
                     if (currentRole === 'admin') {
                         currentUser = { name: 'Super Admin', id: 'ADMIN', role: 'Administrator' };
                         renderAdminNav();
                         router('admin-dashboard');
                     } else {
-                        currentUser = getClient('12345'); // Mock binding
+                        currentUser = getClient('12345'); 
                         currentUser.role = 'Client';
                         renderClientNav();
                         router('client-home');
                     }
-                    
                     updateProfileDisplay();
                     showToast(`Welcome back, ${currentUser.name}`, 'success');
                 }, 800);
@@ -298,8 +278,6 @@
             showToast('Logged out successfully', 'info');
         }
 
-        // --- UI RENDERING ---
-
         function updateProfileDisplay() {
             document.getElementById('user-avatar').innerText = currentUser.name.charAt(0);
             document.getElementById('user-name-display').innerText = currentUser.name;
@@ -307,8 +285,7 @@
         }
 
         function renderAdminNav() {
-            const nav = document.getElementById('nav-links');
-            nav.innerHTML = `
+            document.getElementById('nav-links').innerHTML = `
                 <button onclick="router('admin-dashboard')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-chart-line w-5"></i> Dashboard</button>
                 <button onclick="router('admin-clients')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-users w-5"></i> Clients</button>
                 <button onclick="router('admin-requests')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-inbox w-5"></i> Requests <span id="nav-badge" class="ml-auto bg-brand-600 text-xs font-bold px-2 py-0.5 rounded-full text-white hidden">0</span></button>
@@ -319,13 +296,11 @@
         }
 
         function renderClientNav() {
-            const nav = document.getElementById('nav-links');
-            nav.innerHTML = `
+            document.getElementById('nav-links').innerHTML = `
                 <button onclick="router('client-home')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-house w-5"></i> Home</button>
                 <button onclick="router('client-request')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-pen-to-square w-5"></i> New Request</button>
                 <button onclick="router('client-buy')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-cart-plus w-5"></i> Buy Credits</button>
                 <button onclick="router('client-history')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-clock-rotate-left w-5"></i> History</button>
-                <button onclick="window.open('https://wa.me/1234567890', '_blank')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-emerald-400 hover:bg-slate-800 hover:text-emerald-300 transition"><i class="fa-brands fa-whatsapp w-5"></i> Support</button>
             `;
         }
 
@@ -338,25 +313,24 @@
             }
         }
 
-        function router(view) {
+        // --- ROUTER & VIEWS ---
+        function router(view, param = null) {
             const container = document.getElementById('content-area');
             const title = document.getElementById('page-title');
             const headerActions = document.getElementById('header-actions');
-            headerActions.innerHTML = ''; // Clear actions
+            headerActions.innerHTML = ''; 
             
             container.innerHTML = '<div class="flex items-center justify-center h-64"><i class="fa-solid fa-spinner fa-spin text-3xl text-brand-500"></i></div>';
 
             setTimeout(() => {
-                // --- ADMIN VIEWS ---
                 if (view === 'admin-dashboard') {
                     title.innerText = 'Overview';
                     const totalClients = db.clients.length;
                     const activeCredits = db.clients.reduce((a, b) => a + b.credits, 0);
                     const pendingReq = db.requests.filter(r => r.status === 'Pending').length;
-                    
                     container.innerHTML = `
                         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 fade-in">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:border-brand-200 transition cursor-pointer" onclick="router('admin-clients')">
+                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 cursor-pointer" onclick="router('admin-clients')">
                                 <div class="text-slate-500 text-sm font-medium mb-2">Total Clients</div>
                                 <div class="text-3xl font-bold text-slate-800">${totalClients}</div>
                                 <div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-arrow-up"></i> 12% vs last month</div>
@@ -364,52 +338,21 @@
                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                                 <div class="text-slate-500 text-sm font-medium mb-2">Active Credits</div>
                                 <div class="text-3xl font-bold text-brand-600">${activeCredits}</div>
-                                <div class="mt-2 text-xs text-slate-400">Liability value: $${activeCredits * 25}</div>
+                                <div class="mt-2 text-xs text-slate-400">Liability: $${activeCredits * 25}</div>
                             </div>
-                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:border-brand-200 transition cursor-pointer" onclick="router('admin-requests')">
+                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 cursor-pointer" onclick="router('admin-requests')">
                                 <div class="text-slate-500 text-sm font-medium mb-2">Pending Requests</div>
                                 <div class="text-3xl font-bold ${pendingReq > 0 ? 'text-amber-500' : 'text-slate-800'}">${pendingReq}</div>
                                 <div class="mt-2 text-xs text-slate-400">Requires attention</div>
                             </div>
-                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 hover:border-brand-200 transition cursor-pointer" onclick="router('admin-billing')">
+                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
                                 <div class="text-slate-500 text-sm font-medium mb-2">Revenue (Mo)</div>
                                 <div class="text-3xl font-bold text-slate-800">$12.4k</div>
                                 <div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-arrow-up"></i> On track</div>
                             </div>
                         </div>
-
-                        <div class="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 fade-in">
-                            <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                                <div class="flex justify-between items-center mb-4">
-                                    <h3 class="font-semibold text-lg">Recent Activity</h3>
-                                    <button onclick="router('admin-logs')" class="text-sm text-brand-600 hover:underline">View All Logs</button>
-                                </div>
-                                <div class="space-y-4">
-                                    ${db.logs.slice(0, 5).map(log => `
-                                        <div class="flex items-start gap-3 pb-3 border-b border-slate-50 last:border-0">
-                                            <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs"><i class="fa-solid fa-terminal"></i></div>
-                                            <div>
-                                                <div class="text-sm font-medium text-slate-800">${log.action} <span class="text-slate-400 font-normal">by ${log.user}</span></div>
-                                                <div class="text-xs text-slate-500">${log.details}</div>
-                                            </div>
-                                            <div class="ml-auto text-xs text-slate-400">${log.date}</div>
-                                        </div>
-                                    `).join('')}
-                                </div>
-                            </div>
-                            <div class="bg-brand-900 rounded-xl shadow-sm border border-slate-100 p-6 text-white relative overflow-hidden">
-                                <div class="relative z-10">
-                                    <h3 class="font-semibold text-lg mb-2">System Health</h3>
-                                    <p class="text-brand-200 text-sm mb-4">All systems operational.</p>
-                                    <button onclick="router('admin-clients')" class="bg-brand-600 hover:bg-brand-500 text-white text-sm px-4 py-2 rounded transition">Manage Clients</button>
-                                </div>
-                                <div class="absolute bottom-0 right-0 opacity-20 text-9xl -mr-4 -mb-4"><i class="fa-solid fa-server"></i></div>
-                            </div>
-                        </div>
                     `;
-                }
-
-                else if (view === 'admin-clients') {
+                } else if (view === 'admin-clients') {
                     title.innerText = 'Client Management';
                     container.innerHTML = `
                         <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden fade-in">
@@ -423,31 +366,17 @@
                             <div class="overflow-x-auto">
                                 <table class="w-full text-left border-collapse">
                                     <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                                        <tr>
-                                            <th class="px-6 py-4">Client Name</th>
-                                            <th class="px-6 py-4">Status</th>
-                                            <th class="px-6 py-4">Credits</th>
-                                            <th class="px-6 py-4">Actions</th>
-                                        </tr>
+                                        <tr><th class="px-6 py-4">Client Name</th><th class="px-6 py-4">Status</th><th class="px-6 py-4">Credits</th><th class="px-6 py-4">Actions</th></tr>
                                     </thead>
                                     <tbody id="client-table-body" class="divide-y divide-slate-100 text-sm">
                                         ${db.clients.map(client => `
-                                            <tr class="hover:bg-slate-50 group transition">
-                                                <td class="px-6 py-4">
-                                                    <div class="font-medium text-slate-900">${client.name}</div>
-                                                    <div class="text-xs text-slate-500">${client.email}</div>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <span class="px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${client.status}</span>
-                                                </td>
+                                            <tr class="hover:bg-slate-50">
+                                                <td class="px-6 py-4"><div class="font-medium">${client.name}</div><div class="text-xs text-slate-500">${client.email}</div></td>
+                                                <td class="px-6 py-4"><span class="px-2 py-1 rounded-full text-xs font-medium ${client.status === 'Active' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">${client.status}</span></td>
                                                 <td class="px-6 py-4 font-mono font-bold text-brand-600">${client.credits} CR</td>
-                                                <td class="px-6 py-4 flex items-center gap-2">
-                                                    <button onclick="openAddCreditModal('${client.id}')" class="text-brand-600 hover:text-brand-800 font-medium text-xs border border-brand-200 px-2 py-1 rounded hover:bg-brand-50" title="Adjust Credits">
-                                                        <i class="fa-solid fa-coins mr-1"></i> Adjust
-                                                    </button>
-                                                    <button onclick="toggleClientStatus('${client.id}')" class="text-slate-500 hover:text-${client.status === 'Active' ? 'red-600' : 'emerald-600'} font-medium text-xs border border-slate-200 px-2 py-1 rounded hover:bg-slate-100" title="${client.status === 'Active' ? 'Suspend' : 'Activate'}">
-                                                        <i class="fa-solid ${client.status === 'Active' ? 'fa-ban' : 'fa-check'}"></i>
-                                                    </button>
+                                                <td class="px-6 py-4 flex gap-2">
+                                                    <button onclick="openAddCreditModal('${client.id}')" class="text-brand-600 border border-brand-200 px-2 py-1 rounded hover:bg-brand-50 text-xs"><i class="fa-solid fa-coins mr-1"></i> Adjust</button>
+                                                    <button onclick="toggleClientStatus('${client.id}')" class="text-slate-500 border border-slate-200 px-2 py-1 rounded hover:bg-slate-100 text-xs"><i class="fa-solid ${client.status === 'Active' ? 'fa-ban' : 'fa-check'}"></i></button>
                                                 </td>
                                             </tr>
                                         `).join('')}
@@ -456,135 +385,132 @@
                             </div>
                         </div>
                     `;
-                }
-                
-                else if (view === 'admin-logs') {
-                    title.innerText = 'Audit Logs';
-                    headerActions.innerHTML = `<button onclick="exportLogs()" class="text-slate-500 hover:text-brand-600"><i class="fa-solid fa-download"></i> Export CSV</button>`;
-                    container.innerHTML = `
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden fade-in">
-                            <div class="p-4 border-b border-slate-100">
-                                <input type="text" onkeyup="filterLogs(this.value)" placeholder="Filter logs by user or action..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
-                            </div>
-                            <div class="max-h-[600px] overflow-y-auto">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold sticky top-0 bg-slate-50 z-10 shadow-sm">
-                                        <tr>
-                                            <th class="px-6 py-4">Time</th>
-                                            <th class="px-6 py-4">User / Entity</th>
-                                            <th class="px-6 py-4">Action</th>
-                                            <th class="px-6 py-4">Details</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 text-sm" id="logs-table-body">
-                                        ${db.logs.map(log => `
-                                            <tr class="hover:bg-slate-50">
-                                                <td class="px-6 py-3 text-slate-400 whitespace-nowrap">${log.date}</td>
-                                                <td class="px-6 py-3 font-medium text-slate-800">${log.user}</td>
-                                                <td class="px-6 py-3"><span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">${log.action}</span></td>
-                                                <td class="px-6 py-3 text-slate-500">${log.details}</td>
-                                            </tr>
-                                        `).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                }
-                
-                else if (view === 'admin-billing') {
-                    title.innerText = 'Billing & Invoices';
-                    container.innerHTML = `
-                        <div class="grid grid-cols-1 gap-6 fade-in">
-                            <div class="flex justify-between items-center">
-                                <div class="text-slate-500">Manage financial records and generate invoices.</div>
-                                <button onclick="generateInvoice()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm"><i class="fa-solid fa-file-invoice mr-2"></i>Generate Invoice</button>
-                            </div>
-                            
-                            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                                <table class="w-full text-left">
-                                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                                        <tr>
-                                            <th class="px-6 py-4">Invoice ID</th>
-                                            <th class="px-6 py-4">Client</th>
-                                            <th class="px-6 py-4">Date</th>
-                                            <th class="px-6 py-4">Amount</th>
-                                            <th class="px-6 py-4">Status</th>
-                                            <th class="px-6 py-4">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 text-sm">
-                                        ${db.invoices.map(inv => {
-                                            const c = getClient(inv.clientId);
-                                            return `
-                                            <tr class="hover:bg-slate-50">
-                                                <td class="px-6 py-4 font-mono text-slate-500">${inv.id}</td>
-                                                <td class="px-6 py-4 font-medium text-slate-800">${c ? c.name : 'Unknown'}</td>
-                                                <td class="px-6 py-4 text-slate-500">${inv.date}</td>
-                                                <td class="px-6 py-4 font-bold text-slate-800">${inv.amount}</td>
-                                                <td class="px-6 py-4">
-                                                    <span class="px-2 py-1 rounded text-xs font-bold ${inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${inv.status}</span>
-                                                </td>
-                                                <td class="px-6 py-4">
-                                                    <button onclick="showToast('Downloading PDF...', 'info')" class="text-brand-600 hover:underline text-xs"><i class="fa-solid fa-download"></i> PDF</button>
-                                                </td>
-                                            </tr>
-                                        `}).join('')}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                else if (view === 'admin-requests') {
+                } else if (view === 'admin-requests') {
                     title.innerText = 'Work Queue';
                     container.innerHTML = `
                         <div class="space-y-4 fade-in">
                             ${db.requests.map(req => {
                                 const client = getClient(req.clientId);
-                                let statusColor = 'bg-slate-100 text-slate-600';
-                                if(req.status === 'Approved') statusColor = 'bg-emerald-100 text-emerald-700';
-                                if(req.status === 'Pending') statusColor = 'bg-amber-100 text-amber-700';
-                                
+                                let statusColor = req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700';
                                 return `
-                                <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-start md:items-center gap-4">
+                                <div onclick="router('request-detail', '${req.id}')" class="bg-white p-5 rounded-xl shadow-sm border border-slate-100 flex flex-col md:flex-row items-center gap-4 cursor-pointer hover:border-brand-300 transition group">
                                     <div class="flex-1">
                                         <div class="flex items-center gap-3 mb-1">
                                             <span class="px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wide ${statusColor}">${req.status}</span>
                                             <span class="text-xs text-slate-400">${req.date}</span>
                                             <span class="text-xs font-mono text-slate-300">#${req.id}</span>
                                         </div>
-                                        <div class="font-bold text-lg text-slate-800">${req.service}</div>
-                                        <div class="text-sm text-slate-500">Client: <span class="font-medium text-slate-700">${client.name}</span> &bull; Cost: <span class="text-brand-600 font-bold">${req.cost} Credits</span></div>
-                                        ${req.notes ? `<div class="mt-2 text-sm bg-slate-50 p-2 rounded text-slate-600 italic">"${req.notes}"</div>` : ''}
+                                        <div class="font-bold text-lg text-slate-800 group-hover:text-brand-600 transition">${req.service}</div>
+                                        <div class="text-sm text-slate-500">Client: <span class="font-medium text-slate-700">${client.name}</span> &bull; Assignee: <span class="text-slate-700">${req.assignee || 'Unassigned'}</span></div>
                                     </div>
-                                    ${req.status === 'Pending' ? `
-                                    <div class="flex gap-2 w-full md:w-auto">
-                                        <button onclick="processRequest('${req.id}', 'approve')" class="flex-1 md:flex-none bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm shadow-emerald-200">
-                                            <i class="fa-solid fa-check mr-2"></i>Approve
-                                        </button>
-                                        <button onclick="processRequest('${req.id}', 'reject')" class="flex-1 md:flex-none bg-white border border-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium transition">
-                                            Reject
-                                        </button>
-                                    </div>
-                                    ` : ''}
+                                    <div class="text-slate-400"><i class="fa-solid fa-chevron-right"></i></div>
                                 </div>
                             `}).join('')}
-                            
-                            ${db.requests.length === 0 ? '<div class="text-center text-slate-400 py-10">No requests found.</div>' : ''}
                         </div>
                     `;
-                }
-
-                // --- CLIENT VIEWS ---
-                else if (view === 'client-home') {
-                    title.innerText = 'My Dashboard';
-                    headerActions.innerHTML = `<button onclick="router('client-request')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-brand-200 shadow-lg">New Request</button>`;
+                } else if (view === 'request-detail') {
+                    const req = db.requests.find(r => r.id === param);
+                    const client = getClient(req.clientId);
+                    title.innerText = `Request ${req.id}`;
+                    headerActions.innerHTML = `<button onclick="router('${currentRole === 'admin' ? 'admin-requests' : 'client-home'}')" class="text-slate-500 hover:text-slate-800 text-sm"><i class="fa-solid fa-arrow-left mr-1"></i> Back</button>`;
                     
                     container.innerHTML = `
+                        <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] fade-in">
+                            <!-- Left: Details -->
+                            <div class="w-full lg:w-1/3 bg-white rounded-xl shadow-sm border border-slate-100 p-6 overflow-y-auto">
+                                <div class="mb-6">
+                                    <span class="px-2 py-1 text-xs font-bold rounded ${req.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : req.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${req.status}</span>
+                                    <h2 class="text-xl font-bold mt-2">${req.service}</h2>
+                                    <p class="text-sm text-slate-500">Client: ${client.name}</p>
+                                </div>
+                                
+                                <div class="space-y-6">
+                                    <div>
+                                        <div class="text-xs uppercase text-slate-400 font-bold mb-1">Instructions</div>
+                                        <div class="text-sm text-slate-700 bg-slate-50 p-3 rounded border border-slate-100">${req.notes || 'No notes provided.'}</div>
+                                    </div>
+
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <div class="text-xs uppercase text-slate-400 font-bold mb-1">Cost</div>
+                                            <div class="font-mono font-bold text-brand-600">${req.cost} Credits</div>
+                                        </div>
+                                        <div>
+                                            <div class="text-xs uppercase text-slate-400 font-bold mb-1">ETA</div>
+                                            <div class="text-sm font-medium text-slate-800">${req.eta}</div>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-xs uppercase text-slate-400 font-bold mb-2 flex justify-between">
+                                            <span>Attachments / Deliverables</span>
+                                            <button onclick="fakeUpload('${req.id}')" class="text-brand-600 text-xs hover:underline"><i class="fa-solid fa-plus"></i> Add</button>
+                                        </div>
+                                        <div class="space-y-2" id="file-list-${req.id}">
+                                            ${req.files.length ? req.files.map(f => `
+                                                <div class="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded border border-slate-100">
+                                                    <i class="fa-solid fa-file text-slate-400"></i> ${f}
+                                                    <i class="fa-solid fa-download ml-auto text-slate-400 cursor-pointer hover:text-brand-600"></i>
+                                                </div>
+                                            `).join('') : '<div class="text-xs text-slate-400 italic">No files yet.</div>'}
+                                        </div>
+                                    </div>
+
+                                    ${currentRole === 'admin' ? `
+                                        <div class="pt-4 border-t border-slate-100">
+                                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Admin Actions</label>
+                                            <div class="flex flex-col gap-2">
+                                                <select onchange="updateAssignee('${req.id}', this.value)" class="w-full text-sm border border-slate-200 rounded p-2">
+                                                    <option value="">Select Assignee...</option>
+                                                    ${TEAM_MEMBERS.map(t => `<option value="${t.name}" ${req.assignee === t.name ? 'selected' : ''}>${t.name}</option>`).join('')}
+                                                </select>
+                                                ${req.status === 'Pending' ? `
+                                                    <div class="flex gap-2 mt-2">
+                                                        <button onclick="processRequest('${req.id}', 'approve')" class="flex-1 bg-emerald-600 text-white text-xs py-2 rounded hover:bg-emerald-700">Approve</button>
+                                                        <button onclick="processRequest('${req.id}', 'reject')" class="flex-1 bg-white border border-red-200 text-red-600 text-xs py-2 rounded hover:bg-red-50">Reject</button>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+
+                            <!-- Right: Collaboration/Chat -->
+                            <div class="w-full lg:w-2/3 bg-white rounded-xl shadow-sm border border-slate-100 flex flex-col overflow-hidden">
+                                <div class="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                                    <h3 class="font-bold text-slate-700"><i class="fa-regular fa-comments mr-2"></i>Activity & Comments</h3>
+                                    <span class="text-xs text-slate-400">visible to client & team</span>
+                                </div>
+                                <div class="flex-1 overflow-y-auto p-4 space-y-4" id="chat-box-${req.id}">
+                                    ${req.messages.length ? req.messages.map(msg => `
+                                        <div class="chat-bubble ${msg.sender === currentUser.name || (currentUser.role === 'Administrator' && msg.sender.includes('(')) ? 'chat-mine' : 'chat-other'}">
+                                            <div class="text-xs opacity-75 mb-1 flex justify-between gap-4"><span>${msg.sender}</span> <span>${msg.time}</span></div>
+                                            ${msg.text}
+                                        </div>
+                                    `).join('') : '<div class="text-center text-slate-300 mt-10">No messages yet. Start the conversation.</div>'}
+                                </div>
+                                <div class="p-4 border-t border-slate-100 bg-white">
+                                    <form onsubmit="sendChat(event, '${req.id}')" class="flex gap-2">
+                                        <input type="text" id="chat-input-${req.id}" class="flex-1 border border-slate-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Type a message..." autocomplete="off">
+                                        <button type="submit" class="bg-brand-600 text-white px-4 py-2 rounded-lg hover:bg-brand-700"><i class="fa-solid fa-paper-plane"></i></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    // Scroll chat to bottom
+                    setTimeout(() => {
+                        const chatBox = document.getElementById(`chat-box-${req.id}`);
+                        if(chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+                    }, 100);
+
+                } else if (view === 'client-home') {
+                    title.innerText = 'My Dashboard';
+                    headerActions.innerHTML = `<button onclick="router('client-request')" class="bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition shadow-brand-200 shadow-lg">New Request</button>`;
+                    container.innerHTML = `
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 fade-in">
-                            <div class="col-span-2 bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-8 text-white shadow-xl shadow-brand-200 relative overflow-hidden">
+                            <div class="col-span-2 bg-gradient-to-br from-brand-600 to-brand-800 rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
                                 <div class="relative z-10">
                                     <div class="text-brand-200 text-sm font-medium uppercase tracking-wide mb-1">Available Balance</div>
                                     <div class="text-5xl font-bold mb-6">${currentUser.credits} <span class="text-2xl font-normal text-brand-300">Credits</span></div>
@@ -593,140 +519,64 @@
                                         <button onclick="router('client-history')" class="bg-brand-700 text-white border border-brand-500 px-4 py-2 rounded-lg text-sm font-medium hover:bg-brand-600 transition">View Usage</button>
                                     </div>
                                 </div>
-                                <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-8 translate-y-8">
-                                    <i class="fa-solid fa-coins text-9xl"></i>
-                                </div>
+                                <div class="absolute right-0 bottom-0 opacity-10 transform translate-x-8 translate-y-8"><i class="fa-solid fa-coins text-9xl"></i></div>
                             </div>
-                            
                             <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
                                 <h3 class="font-semibold text-slate-800 mb-4">Quick Stats</h3>
                                 <div class="space-y-4">
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-500 text-sm">Pending Requests</span>
-                                        <span class="font-bold text-amber-500">
-                                            ${db.requests.filter(r => r.clientId === currentUser.id && r.status === 'Pending').length}
-                                        </span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <span class="text-slate-500 text-sm">Total Spent</span>
-                                        <span class="font-bold text-slate-800">${currentUser.spent} Cr</span>
-                                    </div>
-                                    <div class="pt-4 border-t border-slate-50">
-                                        <a href="#" class="text-brand-600 text-sm hover:underline">Download Monthly Report <i class="fa-solid fa-download ml-1"></i></a>
-                                    </div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-500 text-sm">Pending Requests</span><span class="font-bold text-amber-500">${db.requests.filter(r => r.clientId === currentUser.id && r.status === 'Pending').length}</span></div>
+                                    <div class="flex justify-between items-center"><span class="text-slate-500 text-sm">Total Spent</span><span class="font-bold text-slate-800">${currentUser.spent} Cr</span></div>
+                                    <div class="pt-4 border-t border-slate-50"><a href="#" class="text-brand-600 text-sm hover:underline">Download Monthly Report <i class="fa-solid fa-download ml-1"></i></a></div>
                                 </div>
                             </div>
                         </div>
-
                         <div class="mt-8 fade-in">
                             <h3 class="text-lg font-semibold text-slate-800 mb-4">Active Requests</h3>
-                            <div class="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
-                                ${db.requests.filter(r => r.clientId === currentUser.id).length > 0 ? 
-                                    `<table class="w-full text-left">
-                                        <thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-6 py-3">Service</th><th class="px-6 py-3">Date</th><th class="px-6 py-3">Status</th></tr></thead>
-                                        <tbody>
-                                            ${db.requests.filter(r => r.clientId === currentUser.id).map(r => `
-                                                <tr class="border-t border-slate-50">
-                                                    <td class="px-6 py-4 font-medium text-slate-700">${r.service}</td>
-                                                    <td class="px-6 py-4 text-sm text-slate-500">${r.date}</td>
-                                                    <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-bold rounded ${r.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : r.status === 'Completed' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}">${r.status}</span></td>
-                                                </tr>
-                                            `).join('')}
-                                        </tbody>
-                                    </table>` : 
-                                    `<div class="p-8 text-center text-slate-400">You haven't made any requests yet.</div>`
-                                }
+                            <div class="space-y-3">
+                                ${db.requests.filter(r => r.clientId === currentUser.id).map(r => `
+                                    <div onclick="router('request-detail', '${r.id}')" class="bg-white p-4 rounded-xl border border-slate-100 flex justify-between items-center cursor-pointer hover:border-brand-300">
+                                        <div>
+                                            <div class="font-bold text-slate-800">${r.service}</div>
+                                            <div class="text-xs text-slate-500">${r.date} &bull; ${r.id}</div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="px-2 py-1 text-xs font-bold rounded ${r.status === 'Approved' ? 'bg-emerald-100 text-emerald-700' : r.status === 'Pending' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}">${r.status}</span>
+                                            <i class="fa-solid fa-chevron-right text-slate-300"></i>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                ${db.requests.filter(r => r.clientId === currentUser.id).length === 0 ? '<div class="text-center text-slate-400">No active requests.</div>' : ''}
                             </div>
                         </div>
                     `;
-                }
-                
-                else if (view === 'client-history') {
-                    title.innerText = 'History & Usage';
-                    headerActions.innerHTML = `<button class="text-slate-400 hover:text-brand-600 text-sm"><i class="fa-solid fa-print"></i> Print Statement</button>`;
-                    
-                    const clientLogs = db.logs.filter(l => l.user === currentUser.name || l.details.includes(currentUser.name));
-                    const clientReqs = db.requests.filter(r => r.clientId === currentUser.id);
-                    
-                    container.innerHTML = `
-                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 fade-in">
-                            <div class="p-6 border-b border-slate-100">
-                                <h3 class="font-bold text-lg text-slate-800">Transaction Ledger</h3>
-                                <p class="text-slate-500 text-sm">A complete history of credits purchased and consumed.</p>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-left">
-                                    <thead class="bg-slate-50 text-xs uppercase text-slate-500">
-                                        <tr>
-                                            <th class="px-6 py-4">Date</th>
-                                            <th class="px-6 py-4">Description</th>
-                                            <th class="px-6 py-4 text-right">Change</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-slate-100 text-sm">
-                                        ${clientLogs.length > 0 ? clientLogs.map(log => {
-                                            const isPositive = log.details.includes('Bought') || log.details.includes('Added');
-                                            const changeText = log.details.match(/(\d+) Cr/);
-                                            const amount = changeText ? changeText[1] : '0';
-                                            return `
-                                            <tr>
-                                                <td class="px-6 py-4 text-slate-500">${log.date}</td>
-                                                <td class="px-6 py-4 font-medium text-slate-800">${log.details}</td>
-                                                <td class="px-6 py-4 text-right font-bold font-mono ${isPositive ? 'text-emerald-600' : 'text-red-500'}">
-                                                    ${isPositive ? '+' : '-'}${amount}
-                                                </td>
-                                            </tr>
-                                            `;
-                                        }).join('') : `<tr><td colspan="3" class="p-6 text-center text-slate-400">No history available yet.</td></tr>`}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    `;
-                }
-
-                else if (view === 'client-request') {
+                } else if (view === 'client-request') {
                     title.innerText = 'Request New Work';
                     container.innerHTML = `
                         <div class="max-w-3xl mx-auto fade-in">
                             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                                 <div class="p-6 md:p-8">
-                                    <h2 class="text-lg font-semibold text-slate-800 mb-6">Select Service Details</h2>
-                                    
+                                    <h2 class="text-lg font-semibold text-slate-800 mb-6">Select Service</h2>
                                     <div class="space-y-6">
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-2">Service Type</label>
                                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                 ${SERVICES.map(s => `
                                                     <div onclick="selectService('${s.id}', ${s.cost}, '${s.name}')" id="srv-${s.id}" class="service-card cursor-pointer border-2 border-slate-100 rounded-lg p-4 hover:border-brand-400 transition flex items-center justify-between group">
-                                                        <div class="flex items-center gap-3">
-                                                            <div class="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid ${s.icon}"></i></div>
-                                                            <div class="font-medium text-slate-700">${s.name}</div>
-                                                        </div>
+                                                        <div class="flex items-center gap-3"><div class="w-8 h-8 rounded bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fa-solid ${s.icon}"></i></div><div class="font-medium text-slate-700">${s.name}</div></div>
                                                         <div class="text-sm font-bold text-slate-400 group-hover:text-brand-600">${s.cost} Cr</div>
                                                     </div>
                                                 `).join('')}
                                             </div>
                                         </div>
-
                                         <div>
-                                            <label class="block text-sm font-medium text-slate-700 mb-2">Project Brief / Instructions</label>
+                                            <label class="block text-sm font-medium text-slate-700 mb-2">Instructions</label>
                                             <textarea id="req-notes" rows="4" class="w-full p-3 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none" placeholder="Describe what you need..."></textarea>
                                         </div>
-
                                         <div class="bg-slate-50 p-4 rounded-lg flex items-center justify-between border border-slate-200">
-                                            <div>
-                                                <div class="text-sm text-slate-500">Estimated Cost</div>
-                                                <div class="text-xl font-bold text-slate-800" id="cost-display">0 Credits</div>
-                                            </div>
-                                            <div class="text-right">
-                                                <div class="text-sm text-slate-500">Remaining after request</div>
-                                                <div class="text-lg font-bold text-brand-600" id="remaining-display">${currentUser.credits} Credits</div>
-                                            </div>
+                                            <div><div class="text-sm text-slate-500">Cost</div><div class="text-xl font-bold text-slate-800" id="cost-display">0 Credits</div></div>
+                                            <div class="text-right"><div class="text-sm text-slate-500">Remaining</div><div class="text-lg font-bold text-brand-600" id="remaining-display">${currentUser.credits} Credits</div></div>
                                         </div>
-
                                         <div class="flex gap-4 pt-4">
-                                            <button onclick="submitRequest()" id="btn-submit-req" class="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white py-3 rounded-lg font-semibold transition shadow-lg shadow-brand-200" disabled>Submit Request</button>
+                                            <button onclick="submitRequest()" id="btn-submit-req" class="flex-1 bg-brand-600 hover:bg-brand-700 disabled:bg-slate-300 text-white py-3 rounded-lg font-semibold transition shadow-lg shadow-brand-200" disabled>Submit Request</button>
                                             <button onclick="router('client-home')" class="px-6 py-3 rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50 font-medium">Cancel</button>
                                         </div>
                                     </div>
@@ -734,17 +584,11 @@
                             </div>
                         </div>
                     `;
-                }
-
-                else if (view === 'client-buy') {
+                } else if (view === 'client-buy') {
                     title.innerText = 'Purchase Credits';
                     container.innerHTML = `
                         <div class="max-w-5xl mx-auto fade-in">
-                            <div class="text-center mb-10">
-                                <h2 class="text-2xl font-bold text-slate-800">Simple, transparent pricing.</h2>
-                                <p class="text-slate-500">Credits never expire. Top up anytime.</p>
-                            </div>
-                            
+                            <div class="text-center mb-10"><h2 class="text-2xl font-bold text-slate-800">Simple pricing.</h2><p class="text-slate-500">Credits never expire.</p></div>
                             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 ${PACKAGES.map(pkg => `
                                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 relative hover:border-brand-400 transition hover:shadow-xl hover:-translate-y-1">
@@ -753,340 +597,189 @@
                                             <div class="text-slate-500 font-medium mb-2">${pkg.name}</div>
                                             <div class="text-4xl font-bold text-slate-900 mb-1">${pkg.credits} <span class="text-lg font-normal text-slate-400">Credits</span></div>
                                             <div class="text-2xl text-brand-600 font-bold mb-6">${pkg.price}</div>
-                                            <button onclick="buyPackage(${pkg.id})" class="w-full py-3 rounded-lg font-semibold transition ${pkg.id === 2 ? 'bg-brand-600 text-white hover:bg-brand-700 shadow-lg shadow-brand-200' : 'bg-brand-50 text-brand-700 hover:bg-brand-100'}">Select Package</button>
-                                        </div>
-                                        <div class="mt-6 space-y-3 text-sm text-slate-500">
-                                            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> Immediate Allocation</div>
-                                            <div class="flex items-center gap-2"><i class="fa-solid fa-check text-emerald-500"></i> Priority Support</div>
+                                            <button onclick="buyPackage(${pkg.id})" class="w-full py-3 rounded-lg font-semibold transition ${pkg.id === 2 ? 'bg-brand-600 text-white' : 'bg-brand-50 text-brand-700'}">Select Package</button>
                                         </div>
                                     </div>
                                 `).join('')}
                             </div>
                         </div>
                     `;
+                } else if (view === 'client-history') {
+                    title.innerText = 'History';
+                    container.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 fade-in">
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-left"><thead class="bg-slate-50 text-xs uppercase text-slate-500"><tr><th class="px-6 py-4">Date</th><th class="px-6 py-4">Description</th><th class="px-6 py-4 text-right">Change</th></tr></thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">${db.logs.filter(l => l.user === currentUser.name || l.details.includes(currentUser.name)).map(log => `
+                                    <tr><td class="px-6 py-4 text-slate-500">${log.date}</td><td class="px-6 py-4 font-medium text-slate-800">${log.details}</td><td class="px-6 py-4 text-right font-bold font-mono ${log.details.includes('Bought') || log.details.includes('Added') ? 'text-emerald-600' : 'text-red-500'}">${log.details.includes('Bought') || log.details.includes('Added') ? '+' : '-'}${log.details.match(/(\d+) Cr/) ? log.details.match(/(\d+) Cr/)[1] : '0'}</td></tr>
+                                `).join('')}</tbody></table>
+                            </div>
+                        </div>
+                    `;
+                } else if (view === 'admin-billing') {
+                    title.innerText = 'Billing';
+                    container.innerHTML = `
+                        <div class="grid grid-cols-1 gap-6 fade-in">
+                            <div class="flex justify-between items-center"><div class="text-slate-500">Manage invoices.</div><button onclick="generateInvoice()" class="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg shadow-sm">Generate Invoice</button></div>
+                            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                                <table class="w-full text-left"><thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold"><tr><th class="px-6 py-4">ID</th><th class="px-6 py-4">Client</th><th class="px-6 py-4">Date</th><th class="px-6 py-4">Amount</th><th class="px-6 py-4">Status</th><th class="px-6 py-4">Action</th></tr></thead>
+                                <tbody class="divide-y divide-slate-100 text-sm">${db.invoices.map(inv => `<tr class="hover:bg-slate-50"><td class="px-6 py-4 font-mono text-slate-500">${inv.id}</td><td class="px-6 py-4 font-medium">${getClient(inv.clientId) ? getClient(inv.clientId).name : 'Unknown'}</td><td class="px-6 py-4 text-slate-500">${inv.date}</td><td class="px-6 py-4 font-bold">${inv.amount}</td><td class="px-6 py-4"><span class="px-2 py-1 rounded text-xs font-bold ${inv.status === 'Paid' ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${inv.status}</span></td><td class="px-6 py-4"><button onclick="showToast('Downloading PDF...', 'info')" class="text-brand-600 hover:underline text-xs">PDF</button></td></tr>`).join('')}</tbody></table>
+                            </div>
+                        </div>
+                    `;
+                } else if (view === 'admin-logs') {
+                    title.innerText = 'Audit Logs';
+                    container.innerHTML = `
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden fade-in">
+                            <div class="p-4 border-b border-slate-100"><input type="text" onkeyup="filterLogs(this.value)" placeholder="Filter logs..." class="w-full pl-4 pr-4 py-2 bg-slate-50 border rounded-lg focus:ring-2 focus:ring-brand-500 outline-none"></div>
+                            <div class="max-h-[600px] overflow-y-auto">
+                                <table class="w-full text-left border-collapse"><thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold sticky top-0 z-10"><tr><th class="px-6 py-4">Time</th><th class="px-6 py-4">User</th><th class="px-6 py-4">Action</th><th class="px-6 py-4">Details</th></tr></thead>
+                                <tbody class="divide-y divide-slate-100 text-sm" id="logs-table-body">${db.logs.map(log => `<tr class="hover:bg-slate-50"><td class="px-6 py-3 text-slate-400 whitespace-nowrap">${log.date}</td><td class="px-6 py-3 font-medium text-slate-800">${log.user}</td><td class="px-6 py-3"><span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-600">${log.action}</span></td><td class="px-6 py-3 text-slate-500">${log.details}</td></tr>`).join('')}</tbody></table>
+                            </div>
+                        </div>
+                    `;
                 }
-
-                // Default fallback
-                else {
-                    container.innerHTML = `<div class="text-center p-10">Page under construction</div>`;
-                }
-            }, 300); // Fake Router Delay
+            }, 250); 
         }
 
         // --- ACTIONS & LOGIC ---
-
-        // Client: Select Service in Request Form
         let selectedService = null;
         function selectService(id, cost, name) {
             selectedService = { id, cost, name };
-            
-            // Visual Selection
             document.querySelectorAll('.service-card').forEach(el => el.classList.remove('border-brand-500', 'bg-blue-50'));
-            const card = document.getElementById(`srv-${id}`);
-            card.classList.add('border-brand-500', 'bg-blue-50');
-            
-            // Update Calc
+            document.getElementById(`srv-${id}`).classList.add('border-brand-500', 'bg-blue-50');
             document.getElementById('cost-display').innerText = `${cost} Credits`;
             const remaining = currentUser.credits - cost;
             const elRem = document.getElementById('remaining-display');
             elRem.innerText = `${remaining} Credits`;
-            
             const btn = document.getElementById('btn-submit-req');
-            
             if (remaining < 0) {
-                elRem.classList.add('text-red-600');
-                elRem.classList.remove('text-brand-600');
-                btn.disabled = true;
-                btn.innerText = "Insufficient Credits";
-                showToast('You need more credits for this service', 'error');
+                elRem.classList.add('text-red-600'); elRem.classList.remove('text-brand-600');
+                btn.disabled = true; btn.innerText = "Insufficient Credits";
             } else {
-                elRem.classList.remove('text-red-600');
-                elRem.classList.add('text-brand-600');
-                btn.disabled = false;
-                btn.innerText = "Submit Request";
+                elRem.classList.remove('text-red-600'); elRem.classList.add('text-brand-600');
+                btn.disabled = false; btn.innerText = "Submit Request";
             }
         }
 
         function submitRequest() {
             if (!selectedService) return;
-            
             const notes = document.getElementById('req-notes').value;
-            
-            // Optimistic Update
-            const newReq = {
-                id: generateId(),
-                clientId: currentUser.id,
-                service: selectedService.name,
-                cost: selectedService.cost,
-                status: 'Pending',
-                date: fmtDate(new Date()),
-                notes: notes
-            };
-            
+            const newReq = { id: generateId(), clientId: currentUser.id, service: selectedService.name, cost: selectedService.cost, status: 'Pending', date: fmtDate(new Date()), notes: notes, assignee: '', eta: 'TBD', files: [], messages: [] };
             db.requests.unshift(newReq);
-            
-            // NOTE: We hold the credits logic until approval, OR deduct now.
-            // Prompt says "dashboard shows credit cost... if approved".
-            // For better UX, we usually "Reserve" them. Here we will deduct visually but mark pending.
-            
             showToast('Request submitted successfully!', 'success');
-            
-            // Simulate WhatsApp notification
-            setTimeout(() => {
-                showToast('Confirmation sent to WhatsApp', 'info');
-            }, 1500);
-            
             router('client-home');
         }
 
-        // Client: Buy Credits
+        function sendChat(e, reqId) {
+            e.preventDefault();
+            const input = document.getElementById(`chat-input-${reqId}`);
+            const text = input.value.trim();
+            if(!text) return;
+            
+            const req = db.requests.find(r => r.id === reqId);
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            // Add Message
+            req.messages.push({ sender: currentUser.name, text: text, time: time });
+            
+            // Update UI
+            const chatBox = document.getElementById(`chat-box-${reqId}`);
+            const bubble = document.createElement('div');
+            bubble.className = 'chat-bubble chat-mine fade-in';
+            bubble.innerHTML = `<div class="text-xs opacity-75 mb-1 flex justify-between gap-4"><span>${currentUser.name}</span> <span>${time}</span></div>${text}`;
+            chatBox.appendChild(bubble);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            input.value = '';
+
+            // Simulate Reply
+            if(currentRole === 'Client') {
+                setTimeout(() => {
+                    const reply = "Received. I'll look into this shortly.";
+                    req.messages.push({ sender: 'System', text: reply, time: time });
+                    if(document.getElementById(`chat-box-${reqId}`)) {
+                         const replyBubble = document.createElement('div');
+                         replyBubble.className = 'chat-bubble chat-other fade-in';
+                         replyBubble.innerHTML = `<div class="text-xs opacity-75 mb-1 flex justify-between gap-4"><span>System</span> <span>${time}</span></div>${reply}`;
+                         chatBox.appendChild(replyBubble);
+                         chatBox.scrollTop = chatBox.scrollHeight;
+                    }
+                }, 1000);
+            }
+        }
+
+        function updateAssignee(reqId, name) {
+            const req = db.requests.find(r => r.id === reqId);
+            req.assignee = name;
+            db.logs.unshift({ id: Date.now(), date: fmtDate(new Date()), user: 'Admin', action: 'Assignee Update', details: `Assigned ${reqId} to ${name}` });
+            showToast(`Assigned to ${name}`, 'success');
+        }
+
+        function fakeUpload(reqId) {
+            const req = db.requests.find(r => r.id === reqId);
+            const name = prompt("Enter fake filename (e.g. brief.pdf):", "Asset.png");
+            if(name) {
+                req.files.push(name);
+                const list = document.getElementById(`file-list-${reqId}`);
+                list.innerHTML += `<div class="flex items-center gap-2 text-sm text-slate-600 bg-slate-50 p-2 rounded border border-slate-100"><i class="fa-solid fa-file text-slate-400"></i> ${name}<i class="fa-solid fa-download ml-auto text-slate-400 cursor-pointer hover:text-brand-600"></i></div>`;
+                showToast('File uploaded', 'success');
+            }
+        }
+
         function buyPackage(pkgId) {
             const pkg = PACKAGES.find(p => p.id === pkgId);
             showToast(`Processing payment for ${pkg.name}...`, 'info');
             setTimeout(() => {
-                // Mock Payment Success
                 currentUser.credits += pkg.credits;
-                // Also update global client list
-                const globalRef = getClient(currentUser.id);
-                if(globalRef) globalRef.credits += pkg.credits;
-
-                db.logs.unshift({
-                    id: Date.now(),
-                    date: fmtDate(new Date()),
-                    user: currentUser.name,
-                    action: 'Purchase',
-                    details: `Bought ${pkg.name} (+${pkg.credits} Cr)`
-                });
-                
-                showToast('Payment Successful! Credits added.', 'success');
+                getClient(currentUser.id).credits += pkg.credits;
+                db.logs.unshift({ id: Date.now(), date: fmtDate(new Date()), user: currentUser.name, action: 'Purchase', details: `Bought ${pkg.name} (+${pkg.credits} Cr)` });
+                showToast('Payment Successful!', 'success');
                 router('client-home');
-            }, 2000);
+            }, 1500);
         }
 
-        // Admin: Process Request
         function processRequest(reqId, action) {
             const req = db.requests.find(r => r.id === reqId);
-            if (!req) return;
-            
+            const client = getClient(req.clientId);
             if (action === 'approve') {
-                const client = getClient(req.clientId);
-                
-                // Check balance again (server side validation check simulation)
-                if (client.credits < req.cost) {
-                    showToast(`Error: Client has insufficient credits (${client.credits} available)`, 'error');
-                    return;
-                }
-                
-                // Deduct
-                client.credits -= req.cost;
-                client.spent += req.cost;
-                req.status = 'Approved';
-                
-                db.logs.unshift({
-                    id: Date.now(),
-                    date: fmtDate(new Date()),
-                    user: 'Admin',
-                    action: 'Approval',
-                    details: `Approved ${req.id}. Deducted ${req.cost} Cr from ${client.name}`
-                });
-                
-                showToast('Request Approved. Credits Deducted.', 'success');
+                if (client.credits < req.cost) { showToast('Insufficient credits', 'error'); return; }
+                client.credits -= req.cost; client.spent += req.cost; req.status = 'Approved';
+                db.logs.unshift({ id: Date.now(), date: fmtDate(new Date()), user: 'Admin', action: 'Approval', details: `Approved ${req.id}` });
+                showToast('Approved', 'success');
             } else {
-                req.status = 'Rejected';
-                showToast('Request Rejected.', 'info');
+                req.status = 'Rejected'; showToast('Rejected', 'info');
             }
-            
-            updateAdminBadges();
-            router('admin-requests'); // Re-render
-        }
-        
-        // Admin: Generate Invoice
-        function generateInvoice() {
-            const newInv = {
-                id: generateInvId(),
-                clientId: '12345', // Mock assigning to first client
-                amount: '$500',
-                date: fmtDate(new Date()),
-                status: 'Pending'
-            };
-            db.invoices.unshift(newInv);
-            showToast('Invoice generated and sent to client.', 'success');
-            router('admin-billing');
-        }
-        
-        function filterLogs(val) {
-            const term = val.toLowerCase();
-            const rows = document.getElementById('logs-table-body').querySelectorAll('tr');
-            rows.forEach(row => {
-                const text = row.innerText.toLowerCase();
-                row.style.display = text.includes(term) ? '' : 'none';
-            });
-        }
-        
-        function exportLogs() {
-            showToast('Exporting logs to CSV...', 'info');
-            // Mock export delay
-            setTimeout(() => showToast('Download started', 'success'), 1500);
+            router('admin-requests');
         }
 
-        // Admin: Add Client Logic
         function openAddClientModal() {
-            const modal = document.getElementById('modal-overlay');
-            const content = document.getElementById('modal-content');
-            
-            content.innerHTML = `
-                <div class="p-6">
-                    <h3 class="text-lg font-bold mb-4">Add New Client</h3>
-                    <form onsubmit="saveNewClient(event)" class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Company Name</label>
-                            <input type="text" id="new-client-name" required class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500" placeholder="e.g. Gamma Corp">
-                        </div>
-                         <div>
-                            <label class="block text-sm font-medium mb-1">Email</label>
-                            <input type="email" id="new-client-email" required class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500" placeholder="contact@gamma.com">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium mb-1">Initial Credits</label>
-                            <input type="number" id="new-client-credits" value="0" class="w-full border border-slate-300 rounded p-2 outline-none focus:border-brand-500">
-                        </div>
-                        <div class="flex gap-3 justify-end pt-2">
-                            <button type="button" onclick="closeModal()" class="text-slate-500 hover:text-slate-800 px-4 py-2">Cancel</button>
-                            <button type="submit" class="bg-brand-600 text-white px-4 py-2 rounded hover:bg-brand-700">Create Client</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-             modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            document.getElementById('modal-content').innerHTML = `<div class="p-6"><h3 class="text-lg font-bold mb-4">Add Client</h3><form onsubmit="saveNewClient(event)" class="space-y-4"><input id="new-client-name" class="w-full border border-slate-300 rounded p-2" placeholder="Name"><input id="new-client-email" class="w-full border border-slate-300 rounded p-2" placeholder="Email"><input type="number" id="new-client-credits" class="w-full border border-slate-300 rounded p-2" placeholder="Initial Credits"><div class="flex justify-end gap-2"><button type="button" onclick="closeModal()" class="px-4 py-2">Cancel</button><button type="submit" class="bg-brand-600 text-white px-4 py-2 rounded">Save</button></div></form></div>`;
+            document.getElementById('modal-overlay').classList.remove('hidden', 'opacity-0');
         }
-        
         function saveNewClient(e) {
             e.preventDefault();
-            const name = document.getElementById('new-client-name').value;
-            const email = document.getElementById('new-client-email').value;
-            const credits = parseInt(document.getElementById('new-client-credits').value) || 0;
-            
-            const newClient = {
-                id: Date.now().toString(),
-                name: name,
-                email: email,
-                credits: credits,
-                status: 'Active',
-                joined: fmtDate(new Date()),
-                spent: 0
-            };
-            
-            db.clients.push(newClient);
-            db.logs.unshift({
-                id: Date.now(),
-                date: fmtDate(new Date()),
-                user: 'Admin',
-                action: 'Create Client',
-                details: `Created client ${name} with ${credits} Cr`
-            });
-            
-            showToast('Client created successfully', 'success');
-            closeModal();
-            router('admin-clients');
+            db.clients.push({ id: Date.now().toString(), name: document.getElementById('new-client-name').value, email: document.getElementById('new-client-email').value, credits: parseInt(document.getElementById('new-client-credits').value)||0, status: 'Active', joined: fmtDate(new Date()), spent: 0 });
+            closeModal(); router('admin-clients'); showToast('Client Added', 'success');
         }
-        
-        function toggleClientStatus(id) {
-            const client = getClient(id);
-            client.status = client.status === 'Active' ? 'Suspended' : 'Active';
-            showToast(`Client ${client.name} is now ${client.status}`, 'info');
-            router('admin-clients');
-        }
-
-        // Admin: Add Credits Modal
-        let targetClientId = null;
         function openAddCreditModal(cId) {
-            targetClientId = cId;
-            const client = getClient(cId);
-            
-            const modal = document.getElementById('modal-overlay');
-            const content = document.getElementById('modal-content');
-            
-            content.innerHTML = `
-                <div class="p-6">
-                    <h3 class="text-lg font-bold mb-4">Manage Credits for ${client.name}</h3>
-                    <div class="mb-4 text-sm text-slate-500">Current Balance: <span class="font-bold text-slate-800">${client.credits}</span></div>
-                    
-                    <label class="block text-sm font-medium mb-1">Amount to Add (or negative to remove)</label>
-                    <input type="number" id="modal-amount" class="w-full border border-slate-300 rounded p-2 mb-6 outline-none focus:border-brand-500" placeholder="e.g. 50 or -20">
-                    
-                    <div class="flex gap-3 justify-end">
-                        <button onclick="closeModal()" class="text-slate-500 hover:text-slate-800 px-4 py-2">Cancel</button>
-                        <button onclick="confirmAddCredits()" class="bg-brand-600 text-white px-4 py-2 rounded hover:bg-brand-700">Update Balance</button>
-                    </div>
-                </div>
-            `;
-            
-            modal.classList.remove('hidden');
-            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            const c = getClient(cId);
+            document.getElementById('modal-content').innerHTML = `<div class="p-6"><h3 class="text-lg font-bold mb-4">Credits: ${c.name}</h3><p class="mb-4">Current: ${c.credits}</p><input type="number" id="modal-amount" class="w-full border border-slate-300 rounded p-2 mb-4" placeholder="Amount to add/remove"><div class="flex justify-end gap-2"><button onclick="closeModal()" class="px-4 py-2">Cancel</button><button onclick="confirmAddCredits('${cId}')" class="bg-brand-600 text-white px-4 py-2 rounded">Update</button></div></div>`;
+            document.getElementById('modal-overlay').classList.remove('hidden', 'opacity-0');
         }
-
-        function closeModal() {
-            const modal = document.getElementById('modal-overlay');
-            modal.classList.add('opacity-0');
-            setTimeout(() => modal.classList.add('hidden'), 200);
-            targetClientId = null;
+        function confirmAddCredits(cId) {
+            const amt = parseInt(document.getElementById('modal-amount').value);
+            getClient(cId).credits += amt;
+            closeModal(); router('admin-clients'); showToast('Balance Updated', 'success');
         }
-
-        function confirmAddCredits() {
-            const amount = parseInt(document.getElementById('modal-amount').value);
-            if (isNaN(amount)) return;
-            
-            const client = getClient(targetClientId);
-            client.credits += amount;
-            
-            db.logs.unshift({
-                id: Date.now(),
-                date: fmtDate(new Date()),
-                user: 'Admin',
-                action: 'Manual Credit Update',
-                details: `${amount > 0 ? 'Added' : 'Removed'} ${Math.abs(amount)} Cr for ${client.name}`
-            });
-            
-            showToast('Client balance updated successfully.', 'success');
-            closeModal();
-            router('admin-clients');
-        }
-
-        // Toast System
+        function closeModal() { document.getElementById('modal-overlay').classList.add('hidden', 'opacity-0'); }
         function showToast(msg, type = 'info') {
-            const container = document.getElementById('toast-container');
             const el = document.createElement('div');
-            
-            const colors = {
-                success: 'bg-emerald-500',
-                error: 'bg-red-500',
-                info: 'bg-slate-800'
-            };
-            
-            const icons = {
-                success: 'fa-circle-check',
-                error: 'fa-circle-exclamation',
-                info: 'fa-circle-info'
-            };
-            
-            el.className = `${colors[type]} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] transform translate-x-full transition-all duration-300`;
-            el.innerHTML = `<i class="fa-solid ${icons[type]}"></i> <span class="font-medium text-sm">${msg}</span>`;
-            
-            container.appendChild(el);
-            
-            // Animate in
-            requestAnimationFrame(() => {
-                el.classList.remove('translate-x-full');
-            });
-            
-            // Remove
-            setTimeout(() => {
-                el.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => el.remove(), 300);
-            }, 3000);
+            el.className = `${type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-slate-800'} text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-3 min-w-[300px] transform translate-x-full transition-all duration-300`;
+            el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-info-circle'}"></i> ${msg}`;
+            document.getElementById('toast-container').appendChild(el);
+            requestAnimationFrame(() => el.classList.remove('translate-x-full'));
+            setTimeout(() => el.remove(), 3000);
         }
-
     </script>
 </body>
 </html>
