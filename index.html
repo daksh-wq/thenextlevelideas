@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Next Level Ideas | Enterprise Credit Dashboard</title>
+    <title>The Next Level Ideas | Operations OS</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,14 +18,21 @@
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .pattern-bg {
-            background-color: #1e3a8a;
-            background-image: radial-gradient(#3b82f6 1px, transparent 1px);
-            background-size: 20px 20px;
-            opacity: 0.1;
+            background-color: #0f172a;
+            background-image: radial-gradient(#6366f1 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.15;
         }
         .chat-bubble { position: relative; max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 0.9rem; }
-        .chat-mine { background-color: #3b82f6; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
+        .chat-mine { background-color: #6366f1; color: white; margin-left: auto; border-bottom-right-radius: 2px; }
         .chat-other { background-color: #f1f5f9; color: #1e293b; margin-right: auto; border-bottom-left-radius: 2px; }
+        
+        /* Simple CSS Chart Classes */
+        .bar-container { display: flex; align-items: flex-end; height: 100%; gap: 6px; }
+        .bar { width: 100%; border-radius: 4px 4px 0 0; transition: height 0.5s ease; position: relative; group: hover; }
+        .bar:hover { opacity: 0.9; }
+        .bar-tooltip { display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 10px; margin-bottom: 4px; white-space: nowrap; z-index: 10; }
+        .bar:hover .bar-tooltip { display: block; }
     </style>
 
     <script>
@@ -33,7 +40,7 @@
             theme: {
                 extend: {
                     colors: {
-                        brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' },
+                        brand: { 50: '#eef2ff', 100: '#e0e7ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca', 900: '#312e81' },
                     }
                 }
             }
@@ -54,17 +61,17 @@
         <!-- Login Screen -->
         <div id="login-view" class="absolute inset-0 z-30 bg-slate-100 flex items-center justify-center p-4">
             <div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl flex overflow-hidden min-h-[600px]">
-                <div class="hidden md:flex w-1/2 bg-brand-900 text-white flex-col justify-between p-12 relative overflow-hidden">
+                <div class="hidden md:flex w-1/2 bg-slate-900 text-white flex-col justify-between p-12 relative overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-full pattern-bg"></div>
                     <div class="z-10">
-                        <div class="text-3xl font-bold tracking-tight mb-2"><i class="fa-solid fa-layer-group mr-2"></i>The Next<span class="text-brand-500">Level Ideas</span></div>
-                        <p class="text-brand-100">Enterprise Marketing Operations</p>
+                        <div class="text-3xl font-bold tracking-tight mb-2 leading-none">NEXT LEVEL<br><span class="text-brand-500">IDEAS</span></div>
+                        <p class="text-slate-400 mt-4">The Future of Agency Operations.</p>
                     </div>
                     <div class="z-10">
-                        <h2 class="text-4xl font-bold mb-4 leading-tight">Scale your marketing with credit-based agility.</h2>
-                        <p class="text-brand-200 text-lg">Manage requests, track usage, and streamline approvals in one unified workspace.</p>
+                        <h2 class="text-4xl font-bold mb-4 leading-tight">Data-driven creative workflows.</h2>
+                        <p class="text-slate-400 text-lg">Manage clients, track credits, and analyze performance in real-time.</p>
                     </div>
-                    <div class="z-10 text-sm text-brand-400">© 2025 The Next Level Ideas.</div>
+                    <div class="z-10 text-sm text-slate-500">© 2025 The Next Level Ideas.</div>
                 </div>
                 
                 <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
@@ -103,9 +110,9 @@
 
         <!-- App Layout -->
         <div id="main-layout" class="hidden w-full h-full flex">
-            <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300" id="sidebar">
+            <aside class="w-64 bg-slate-950 text-slate-300 flex flex-col flex-shrink-0 transition-all duration-300" id="sidebar">
                 <div class="p-6 flex items-center justify-between text-white border-b border-slate-800">
-                    <div class="font-bold text-xl tracking-wider"><i class="fa-solid fa-layer-group mr-2"></i>AGENCY</div>
+                    <div class="font-bold text-lg tracking-wider leading-tight">NEXT LEVEL<br><span class="text-brand-500">IDEAS</span></div>
                 </div>
                 <div class="p-4">
                     <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Menu</div>
@@ -158,15 +165,16 @@
         ];
 
         const TEAM_MEMBERS = [
-            { id: 'tm1', name: 'Sarah (Editor)' },
-            { id: 'tm2', name: 'Mike (Designer)' },
-            { id: 'tm3', name: 'Jessica (Manager)' }
+            { id: 'tm1', name: 'Sarah (Editor)', activeTasks: 4 },
+            { id: 'tm2', name: 'Mike (Designer)', activeTasks: 2 },
+            { id: 'tm3', name: 'Jessica (Manager)', activeTasks: 5 }
         ];
 
         const db = {
             clients: [
                 { id: '12345', name: 'Acme Corp', email: 'marketing@acme.com', credits: 45, status: 'Active', joined: '2023-01-15', spent: 120 },
-                { id: '67890', name: 'Beta Startups', email: 'founder@beta.io', credits: 2, status: 'Suspended', joined: '2023-06-20', spent: 50 }
+                { id: '67890', name: 'Beta Startups', email: 'founder@beta.io', credits: 2, status: 'Suspended', joined: '2023-06-20', spent: 50 },
+                { id: '99887', name: 'Gamma Solutions', email: 'hello@gamma.net', credits: 150, status: 'Active', joined: '2023-03-10', spent: 300 }
             ],
             requests: [
                 { 
@@ -221,6 +229,12 @@
                 { id: 1, date: '2023-11-01 10:00', user: 'Admin', action: 'System Login', details: 'Logged in from IP 192.168.1.1' },
                 { id: 2, date: '2023-10-28 14:30', user: 'Acme Corp', action: 'Request Approved', details: 'Strategy Call deducted 10 credits' }
             ]
+        };
+
+        // Analytics Mock Data
+        const ANALYTICS = {
+            revenue: [15000, 18200, 16500, 21000, 19500, 24300], // Last 6 months
+            revenueLabels: ['May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct']
         };
 
         let currentUser = null;
@@ -286,9 +300,9 @@
 
         function renderAdminNav() {
             document.getElementById('nav-links').innerHTML = `
-                <button onclick="router('admin-dashboard')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-chart-line w-5"></i> Dashboard</button>
+                <button onclick="router('admin-dashboard')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-chart-pie w-5"></i> Analytics & Stats</button>
                 <button onclick="router('admin-clients')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-users w-5"></i> Clients</button>
-                <button onclick="router('admin-requests')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-inbox w-5"></i> Requests <span id="nav-badge" class="ml-auto bg-brand-600 text-xs font-bold px-2 py-0.5 rounded-full text-white hidden">0</span></button>
+                <button onclick="router('admin-requests')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-inbox w-5"></i> Work Queue <span id="nav-badge" class="ml-auto bg-brand-600 text-xs font-bold px-2 py-0.5 rounded-full text-white hidden">0</span></button>
                 <button onclick="router('admin-billing')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-file-invoice-dollar w-5"></i> Billing</button>
                 <button onclick="router('admin-logs')" class="w-full text-left px-3 py-2 rounded flex items-center gap-3 text-slate-400 hover:bg-slate-800 hover:text-white transition"><i class="fa-solid fa-list-check w-5"></i> Audit Logs</button>
             `;
@@ -324,31 +338,160 @@
 
             setTimeout(() => {
                 if (view === 'admin-dashboard') {
-                    title.innerText = 'Overview';
+                    title.innerText = 'Analytics Command Center';
+                    
+                    // Calculate Stats
                     const totalClients = db.clients.length;
                     const activeCredits = db.clients.reduce((a, b) => a + b.credits, 0);
                     const pendingReq = db.requests.filter(r => r.status === 'Pending').length;
+                    const totalRev = 24300; // from mock analytics
+                    
+                    // Service Distribution Mock
+                    const serviceCounts = { 'Reel/TikTok': 35, 'Strategy': 20, 'Ads': 45 };
+                    
+                    // Render
                     container.innerHTML = `
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 fade-in">
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 cursor-pointer" onclick="router('admin-clients')">
-                                <div class="text-slate-500 text-sm font-medium mb-2">Total Clients</div>
-                                <div class="text-3xl font-bold text-slate-800">${totalClients}</div>
-                                <div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-arrow-up"></i> 12% vs last month</div>
+                        <div class="space-y-6 fade-in">
+                            <!-- KPI Cards -->
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Total Revenue (Oct)</div>
+                                            <div class="text-2xl font-bold text-slate-800">$${totalRev.toLocaleString()}</div>
+                                        </div>
+                                        <div class="text-emerald-500 bg-emerald-50 px-2 py-1 rounded text-xs font-bold">+12%</div>
+                                    </div>
+                                    <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden"><div class="bg-emerald-500 h-full" style="width: 85%"></div></div>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Credit Liability</div>
+                                            <div class="text-2xl font-bold text-brand-600">${activeCredits} CR</div>
+                                        </div>
+                                        <div class="text-slate-400 text-xs">Outstanding</div>
+                                    </div>
+                                    <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden"><div class="bg-brand-500 h-full" style="width: 45%"></div></div>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 cursor-pointer hover:border-brand-200 transition" onclick="router('admin-requests')">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Active Queue</div>
+                                            <div class="text-2xl font-bold ${pendingReq > 0 ? 'text-amber-500' : 'text-slate-800'}">${pendingReq} Tickets</div>
+                                        </div>
+                                        <div class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">Needs Action</div>
+                                    </div>
+                                    <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden"><div class="bg-amber-500 h-full" style="width: ${Math.min(pendingReq * 10, 100)}%"></div></div>
+                                </div>
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <div class="text-slate-500 text-xs font-bold uppercase tracking-wide mb-1">Client Base</div>
+                                            <div class="text-2xl font-bold text-slate-800">${totalClients}</div>
+                                        </div>
+                                        <div class="text-brand-600 text-xs font-bold bg-brand-50 px-2 py-1 rounded">Active</div>
+                                    </div>
+                                    <div class="mt-4 h-1 bg-slate-100 rounded-full overflow-hidden"><div class="bg-slate-400 h-full" style="width: 100%"></div></div>
+                                </div>
                             </div>
-                            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <div class="text-slate-500 text-sm font-medium mb-2">Active Credits</div>
-                                <div class="text-3xl font-bold text-brand-600">${activeCredits}</div>
-                                <div class="mt-2 text-xs text-slate-400">Liability: $${activeCredits * 25}</div>
+
+                            <!-- Charts Section -->
+                            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <!-- Revenue Chart -->
+                                <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                                    <h3 class="font-bold text-slate-800 mb-6">Revenue & Credit Sales Trend</h3>
+                                    <div class="h-64 w-full">
+                                        <div class="bar-container justify-between items-end pl-4 pb-6 border-l border-b border-slate-100 relative">
+                                            ${ANALYTICS.revenue.map((val, i) => {
+                                                const h = (val / 25000) * 100;
+                                                const isCurrent = i === ANALYTICS.revenue.length - 1;
+                                                return `
+                                                <div class="group relative flex flex-col items-center gap-2 flex-1 h-full justify-end">
+                                                    <div class="w-full max-w-[40px] ${isCurrent ? 'bg-brand-600' : 'bg-brand-100 hover:bg-brand-200'} bar" style="height: ${h}%">
+                                                        <div class="bar-tooltip">$${val}</div>
+                                                    </div>
+                                                    <span class="text-xs text-slate-400 font-medium">${ANALYTICS.revenueLabels[i]}</span>
+                                                </div>
+                                                `
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Service Mix -->
+                                <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                                    <h3 class="font-bold text-slate-800 mb-6">Service Demand</h3>
+                                    <div class="space-y-5">
+                                        <div>
+                                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">Video/Reels</span><span class="font-bold">45%</span></div>
+                                            <div class="h-2 bg-slate-100 rounded-full"><div class="bg-purple-500 h-full rounded-full" style="width: 45%"></div></div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">Strategy</span><span class="font-bold">20%</span></div>
+                                            <div class="h-2 bg-slate-100 rounded-full"><div class="bg-pink-500 h-full rounded-full" style="width: 20%"></div></div>
+                                        </div>
+                                        <div>
+                                            <div class="flex justify-between text-sm mb-1"><span class="text-slate-600">Ad Design</span><span class="font-bold">35%</span></div>
+                                            <div class="h-2 bg-slate-100 rounded-full"><div class="bg-orange-400 h-full rounded-full" style="width: 35%"></div></div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-8 pt-6 border-t border-slate-100">
+                                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Team Load</h4>
+                                        <div class="space-y-3">
+                                            ${TEAM_MEMBERS.map(tm => `
+                                                <div class="flex items-center justify-between">
+                                                    <div class="flex items-center gap-2">
+                                                        <div class="w-6 h-6 rounded-full bg-slate-200 text-xs flex items-center justify-center font-bold text-slate-500">${tm.name.charAt(0)}</div>
+                                                        <span class="text-sm text-slate-600">${tm.name.split(' ')[0]}</span>
+                                                    </div>
+                                                    <span class="text-xs font-medium bg-slate-100 px-2 py-0.5 rounded text-slate-600">${tm.activeTasks} tasks</span>
+                                                </div>
+                                            `).join('')}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 cursor-pointer" onclick="router('admin-requests')">
-                                <div class="text-slate-500 text-sm font-medium mb-2">Pending Requests</div>
-                                <div class="text-3xl font-bold ${pendingReq > 0 ? 'text-amber-500' : 'text-slate-800'}">${pendingReq}</div>
-                                <div class="mt-2 text-xs text-slate-400">Requires attention</div>
-                            </div>
-                             <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                                <div class="text-slate-500 text-sm font-medium mb-2">Revenue (Mo)</div>
-                                <div class="text-3xl font-bold text-slate-800">$12.4k</div>
-                                <div class="mt-2 text-xs text-emerald-600"><i class="fa-solid fa-arrow-up"></i> On track</div>
+
+                            <!-- Bottom Lists -->
+                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                                    <div class="p-6 border-b border-slate-50 flex justify-between items-center">
+                                        <h3 class="font-bold text-slate-800">Top Clients (Spend)</h3>
+                                        <button onclick="router('admin-clients')" class="text-brand-600 text-sm font-medium hover:underline">View All</button>
+                                    </div>
+                                    <table class="w-full text-left text-sm">
+                                        <thead class="bg-slate-50 text-slate-500 text-xs uppercase"><tr><th class="px-6 py-3">Client</th><th class="px-6 py-3 text-right">Total Spent</th></tr></thead>
+                                        <tbody class="divide-y divide-slate-50">
+                                            ${db.clients.sort((a,b) => b.spent - a.spent).slice(0,3).map(c => `
+                                                <tr>
+                                                    <td class="px-6 py-3 font-medium text-slate-700">${c.name}</td>
+                                                    <td class="px-6 py-3 text-right font-bold text-slate-800">${c.spent} Cr</td>
+                                                </tr>
+                                            `).join('')}
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
+                                    <h3 class="font-bold text-slate-800 mb-4">System Notifications</h3>
+                                    <div class="space-y-4">
+                                        <div class="flex gap-3 items-start">
+                                            <div class="text-amber-500 mt-1"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                                            <div>
+                                                <div class="text-sm font-medium text-slate-800">Beta Startups has low credits (2 CR)</div>
+                                                <div class="text-xs text-slate-400">Recommended: Send upsell email.</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-3 items-start">
+                                            <div class="text-emerald-500 mt-1"><i class="fa-solid fa-check-circle"></i></div>
+                                            <div>
+                                                <div class="text-sm font-medium text-slate-800">System backup completed</div>
+                                                <div class="text-xs text-slate-400">2 hours ago</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     `;
